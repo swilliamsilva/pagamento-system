@@ -1,0 +1,11 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: auth-service
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:postgresql://localhost/auth_service
+    username: user
+    password: pass

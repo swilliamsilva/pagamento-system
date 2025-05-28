@@ -1,0 +1,11 @@
+server:
+  port: 8083
+spring:
+  application:
+    name: boleto-service
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:postgresql://localhost/boleto_service
+    username: user
+    password: pass
