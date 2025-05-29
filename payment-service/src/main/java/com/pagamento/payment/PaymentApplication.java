@@ -1,6 +1,11 @@
-// TODO: Implementar a classe PaymentApplication
-// Esta classe pertence ao serviço correspondente
-// e deve seguir as boas práticas de TDD e segurança.
-public class PaymentApplication {
+package com.pagamento.payment;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class PaymentApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(PaymentApplication.class, args);
+    }
 }
