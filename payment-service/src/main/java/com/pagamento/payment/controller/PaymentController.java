@@ -1,6 +1,7 @@
 package com.pagamento.payment.controller;
 
-import com.pagamento.payment.model.Payment;
+import com.pagamento.payment.dto.PaymentRequestDTO;
+import com.pagamento.payment.dto.PaymentResponseDTO;
 import com.pagamento.payment.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +18,8 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @PostMapping
-    public ResponseEntity<Payment> processPayment(@RequestBody Payment paymentRequest) {
-        Payment processedPayment = paymentService.processPayment(paymentRequest);
-        return ResponseEntity.ok(processedPayment);
+    public ResponseEntity<PaymentResponseDTO> processPayment(@RequestBody PaymentRequestDTO dto) {
+        PaymentResponseDTO response = paymentService.processPayment(dto);
+        return ResponseEntity.ok(response);
     }
 }
