@@ -1,42 +1,59 @@
 package com.pagamento.common.validation;
 
-public class CPFValidator {
-    
-    public static boolean isValid(String cpf) {
-        if (cpf == null || cpf.length() != 11) {
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import java.util.InputMismatchException;
+
+public class CPFValidator implements ConstraintValidator<ValidCPF, String> {
+
+    @Override
+    public void initialize(ValidCPF constraintAnnotation) {
+    }
+
+    @Override
+    public boolean isValid(String cpf, ConstraintValidatorContext context) {
+        if (cpf == null || cpf.trim().isEmpty()) {
             return false;
         }
-        
-        // Algoritmo de validação de CPF
+
+        cpf = cpf.replace(".", "").replace("-", "");
+
+        if (cpf.length() != 11 || cpf.matches(cpf.charAt(0) + "{11}")) {
+            return false;
+        }
+
         try {
             int[] digits = new int[11];
             for (int i = 0; i < 11; i++) {
-                digits[i] = Character.getNumericValue(cpf.charAt(i));
+                digits[i] = Integer.parseInt(cpf.substring(i, i + 1));
             }
-            
-            // Cálculo do primeiro dígito verificador
+
             int sum = 0;
             for (int i = 0; i < 9; i++) {
                 sum += digits[i] * (10 - i);
             }
-            int remainder = sum % 11;
-            int expectedDigit1 = (remainder < 2) ? 0 : 11 - remainder;
-            
-            if (digits[9] != expectedDigit1) {
+
+            int firstVerifier = 11 - (sum % 11);
+            if (firstVerifier >= 10) {
+                firstVerifier = 0;
+            }
+
+            if (firstVerifier != digits[9]) {
                 return false;
             }
-            
-            // Cálculo do segundo dígito verificador
+
             sum = 0;
             for (int i = 0; i < 10; i++) {
                 sum += digits[i] * (11 - i);
             }
-            remainder = sum % 11;
-            int expectedDigit2 = (remainder < 2) ? 0 : 11 - remainder;
-            
-            return digits[10] == expectedDigit2;
-            
-        } catch (Exception e) {
+
+            int secondVerifier = 11 - (sum % 11);
+            if (secondVerifier >= 10) {
+                secondVerifier = 0;
+            }
+
+            return secondVerifier == digits[10];
+        } catch (InputMismatchException | NumberFormatException e) {
             return false;
         }
     }
