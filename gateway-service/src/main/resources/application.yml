@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: payment-gateway-service
+server:
+  port: 8084
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+
+# Configurações do gateway
+payment:
+  gateway:
+    default-provider: PAGSEGURO
+    fee-percentage: 1.99
+    timeout-seconds: 30
