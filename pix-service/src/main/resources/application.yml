@@ -1,11 +1,9 @@
-server:
-  port: 8084
 spring:
   application:
     name: pix-service
-  profiles:
-    active: dev
-  datasource:
-    url: jdbc:postgresql://localhost/pix_service
-    username: user
-    password: pass
+server:
+  port: 8082
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
