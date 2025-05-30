@@ -1,6 +1,13 @@
-// TODO: Implementar a classe CardApplication
-// Esta classe pertence ao serviço correspondente
-// e deve seguir as boas práticas de TDD e segurança.
-public class CardApplication {
+package com.pagamento.card;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+
+@SpringBootApplication
+@EnableDiscoveryClient
+public class CardApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(CardApplication.class, args);
+    }
 }

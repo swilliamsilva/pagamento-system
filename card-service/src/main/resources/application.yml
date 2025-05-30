@@ -1,11 +1,9 @@
-server:
-  port: 8085
 spring:
   application:
     name: card-service
-  profiles:
-    active: dev
-  datasource:
-    url: jdbc:postgresql://localhost/card_service
-    username: user
-    password: pass
+server:
+  port: 8083
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
