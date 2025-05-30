@@ -76,6 +76,3 @@ O sistema segue o padrão de microserviços desacoplados, onde cada serviço é 
 * Executar testes: `./mvnw test`
 * Endpoints principais descritos em `/swagger-ui.html` de cada serviço.
 
----
-
-
