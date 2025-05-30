@@ -23,6 +23,10 @@ public class KafkaTopics {
     public static final String PAYMENT_CANCELLATION_REQUEST = "payment.cancellation.request";
     public static final String PAYMENT_CANCELLATION_CONFIRMED = "payment.cancellation.confirmed";
     
-    // Tópicos de DLQ (Dead Letter Queue)
-    public static final String DLQ_PAYMENT_PROCESSING = "dlq.payment.processing";
+    // Tópicos de relatórios
+    public static final String REPORT_GENERATION_REQUEST = "report.generation.request";
+    public static final String REPORT_GENERATED = "report.generated";
+    
+    // Tópicos de integração com ERP
+    public static final String ERP_PAYMENT_SYNC = "erp.payment.sync";
 }
