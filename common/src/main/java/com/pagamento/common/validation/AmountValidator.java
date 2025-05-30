@@ -1,6 +1,10 @@
-// TODO: Implementar a classe AmountValidator
-// Esta classe pertence ao serviço correspondente
-// e deve seguir as boas práticas de TDD e segurança.
-public class AmountValidator {
+package com.pagamento.common.validation;
 
+import java.math.BigDecimal;
+
+public class AmountValidator {
+    
+    public static boolean isValid(BigDecimal amount) {
+        return amount != null && amount.compareTo(BigDecimal.ZERO) > 0;
+    }
 }
