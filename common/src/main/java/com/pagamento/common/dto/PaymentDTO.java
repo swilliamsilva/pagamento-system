@@ -14,7 +14,6 @@ public class PaymentDTO {
     private String paymentMethodId;
     private String paymentType;
 
-    // Construtores
     public PaymentDTO() {}
     
     public PaymentDTO(String id, BigDecimal amount, String currency, String status, 
@@ -31,7 +30,6 @@ public class PaymentDTO {
         this.paymentType = paymentType;
     }
 
-    // Getters e Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
     public BigDecimal getAmount() { return amount; }

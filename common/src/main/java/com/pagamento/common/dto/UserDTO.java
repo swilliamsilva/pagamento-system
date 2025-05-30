@@ -9,7 +9,6 @@ public class UserDTO {
     private String role;
     private List<String> paymentMethods;
 
-    // Construtores
     public UserDTO() {}
     
     public UserDTO(String id, String username, String email, String role, List<String> paymentMethods) {
@@ -20,7 +19,6 @@ public class UserDTO {
         this.paymentMethods = paymentMethods;
     }
 
-    // Getters e Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
     public String getUsername() { return username; }

@@ -10,7 +10,6 @@ public class CardDTO {
     private BigDecimal amount;
     private String description;
 
-    // Construtores
     public CardDTO() {}
     
     public CardDTO(String cardNumber, String cardHolder, String expiryDate, 
@@ -23,7 +22,6 @@ public class CardDTO {
         this.description = description;
     }
 
-    // Getters e Setters
     public String getCardNumber() { return cardNumber; }
     public void setCardNumber(String cardNumber) { this.cardNumber = cardNumber; }
     public String getCardHolder() { return cardHolder; }

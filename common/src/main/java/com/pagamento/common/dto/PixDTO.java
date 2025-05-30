@@ -8,7 +8,6 @@ public class PixDTO {
     private String description;
     private String beneficiary;
 
-    // Construtores
     public PixDTO() {}
     
     public PixDTO(String key, BigDecimal amount, String description, String beneficiary) {
@@ -18,7 +17,6 @@ public class PixDTO {
         this.beneficiary = beneficiary;
     }
 
-    // Getters e Setters
     public String getKey() { return key; }
     public void setKey(String key) { this.key = key; }
     public BigDecimal getAmount() { return amount; }

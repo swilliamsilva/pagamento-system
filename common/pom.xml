@@ -23,14 +23,14 @@
             <version>2.2</version>
         </dependency>
         
-        <!-- Jackson for JSON -->
+        <!-- Jackson para JSON -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.12.7.1</version>
         </dependency>
         
-        <!-- MapStruct (Java 8 compatible) -->
+        <!-- MapStruct (Java 8) -->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
