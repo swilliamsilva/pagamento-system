@@ -1,6 +1,6 @@
 package com.pagamento.common.model;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -16,22 +16,20 @@ public class AuditLog {
     private String action; // CREATE, UPDATE, DELETE
     private String details;
     private String performedBy;
-    private LocalDateTime performedAt;
+    private Date performedAt;
 
-    // Construtores
     public AuditLog() {
-        this.id = UUID.randomUUID();
-        this.performedAt = LocalDateTime.now();
+        this.performedAt = new Date();
     }
 
     public AuditLog(String entityName, String entityId, String action, 
                    String details, String performedBy) {
-        this();
         this.entityName = entityName;
         this.entityId = entityId;
         this.action = action;
         this.details = details;
         this.performedBy = performedBy;
+        this.performedAt = new Date();
     }
 
     // Getters e Setters
@@ -47,6 +45,6 @@ public class AuditLog {
     public void setDetails(String details) { this.details = details; }
     public String getPerformedBy() { return performedBy; }
     public void setPerformedBy(String performedBy) { this.performedBy = performedBy; }
-    public LocalDateTime getPerformedAt() { return performedAt; }
-    public void setPerformedAt(LocalDateTime performedAt) { this.performedAt = performedAt; }
+    public Date getPerformedAt() { return performedAt; }
+    public void setPerformedAt(Date performedAt) { this.performedAt = performedAt; }
 }

@@ -6,6 +6,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "payment_methods")
@@ -17,15 +18,14 @@ public class PaymentMethod {
     
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
-    // Construtores
     public PaymentMethod() {
-        this.id = UUID.randomUUID();
+        // UUID será gerado pelo provedor de persistência
     }
 
     public PaymentMethod(String type, String details, User user) {
-        this();
         this.type = type;
         this.details = details;
         this.user = user;

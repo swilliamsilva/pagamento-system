@@ -1,12 +1,13 @@
 package com.pagamento.common.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.UUID;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 
 @Entity
@@ -17,8 +18,8 @@ public class Payment {
     private BigDecimal amount;
     private String currency;
     private String status; // CREATED, PENDING, COMPLETED, FAILED
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Date createdAt;
+    private Date updatedAt;
     
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -28,25 +29,26 @@ public class Payment {
     @JoinColumn(name = "payment_method_id")
     private PaymentMethod paymentMethod;
 
-    // Construtores
     public Payment() {
-        this.id = UUID.randomUUID();
-        this.createdAt = LocalDateTime.now();
         this.status = "CREATED";
     }
 
     public Payment(BigDecimal amount, String currency, User user, PaymentMethod paymentMethod) {
-        this();
         this.amount = amount;
         this.currency = currency;
         this.user = user;
         this.paymentMethod = paymentMethod;
+        this.status = "CREATED";
     }
 
-    // Atualizar timestamp antes de qualquer atualização
+    @PrePersist
+    protected void onCreate() {
+        createdAt = new Date();
+    }
+
     @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
+    protected void onUpdate() {
+        updatedAt = new Date();
     }
 
     // Getters e Setters
@@ -57,13 +59,11 @@ public class Payment {
     public String getCurrency() { return currency; }
     public void setCurrency(String currency) { this.currency = currency; }
     public String getStatus() { return status; }
-    public void setStatus(String status) { 
-        this.status = status;
-    }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public void setStatus(String status) { this.status = status; }
+    public Date getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
+    public Date getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Date updatedAt) { this.updatedAt = updatedAt; }
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
     public PaymentMethod getPaymentMethod() { return paymentMethod; }

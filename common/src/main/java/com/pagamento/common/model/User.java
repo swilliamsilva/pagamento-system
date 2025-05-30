@@ -20,13 +20,11 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<PaymentMethod> paymentMethods;
 
-    // Construtores
     public User() {
-        this.id = UUID.randomUUID();
+        // UUID será gerado pelo provedor de persistência
     }
 
     public User(String username, String email, String passwordHash, String role) {
-        this();
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;
