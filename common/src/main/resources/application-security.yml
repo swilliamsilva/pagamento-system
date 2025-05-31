@@ -1,0 +1,28 @@
+
+# Configurações de segurança TLS
+server:
+  ssl:
+    enabled: true
+    key-store: classpath:certs/server.keystore
+    key-store-password: ${KEY_STORE_PASSWORD:changeit}  # Usar variável de ambiente em produção
+    key-password: ${KEY_PASSWORD:changeit}
+    key-alias: pagamento-server
+    trust-store: classpath:certs/server.truststore
+    trust-store-password: ${TRUST_STORE_PASSWORD:changeit}
+    client-auth: ${CLIENT_AUTH_MODE:need}  # need, want ou none
+    protocol: TLS
+    enabled-protocols: TLSv1.3
+    ciphers: TLS_AES_256_GCM_SHA384,TLS_CHACHA20_POLY1305_SHA256
+
+# Configurações de hardening de segurança
+security:
+  require-ssl: true
+  enforce-ssl: true
+  enable-csrf: true
+  headers:
+    hsts: max-age=31536000 ; includeSubDomains
+    content-security-policy: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'"
+    xss-protection: 1; mode=block
+    frame-options: DENY
+    referrer-policy: same-origin
+    feature-policy: "geolocation 'none'; microphone 'none'; camera 'none'"
