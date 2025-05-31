@@ -1,6 +1,136 @@
-// TODO: Implementar a classe docker-compose.yml
-// Esta classe pertence ao serviço correspondente
-// e deve seguir as boas práticas de TDD e segurança.
-public class docker-compose.yml {
+version: '3.8'
 
-}
+services:
+  # Banco de dados
+  postgres:
+    image: postgres:15-alpine
+    container_name: pg-pagamento
+    environment:
+      POSTGRES_DB: pagamento_db
+      POSTGRES_USER: pagamento
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - pagamento-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pagamento"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - pagamento-net
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'false'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    networks:
+      - pagamento-net
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+
+  # Service Discovery
+  service-discovery:
+    image: springcloud/eureka
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - pagamento-net
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA_CLIENT_REGISTER-WITH-EUREKA: 'false'
+      EUREKA_CLIENT_FETCH-REGISTRY: 'false'
+
+  # Serviços
+  auth-service:
+    build:
+      context: ../auth-service
+      dockerfile: deployment/docker/Dockerfile
+    container_name: auth-service
+    depends_on:
+      - postgres
+      - service-discovery
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE: http://service-discovery:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/pagamento_db
+      SPRING_DATASOURCE_USERNAME: pagamento
+      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_KAFKA_BOOTSTRAP-SERVERS: kafka:9092
+    ports:
+      - "8081:8080"
+    networks:
+      - pagamento-net
+    restart: unless-stopped
+
+  payment-service:
+    build:
+      context: ../payment-service
+      dockerfile: deployment/docker/Dockerfile
+    container_name: payment-service
+    depends_on:
+      - postgres
+      - kafka
+      - service-discovery
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE: http://service-discovery:8761/eureka
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/pagamento_db
+      SPRING_DATASOURCE_USERNAME: pagamento
+      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_KAFKA_BOOTSTRAP-SERVERS: kafka:9092
+    ports:
+      - "8082:8080"
+    networks:
+      - pagamento-net
+    restart: unless-stopped
+
+  gateway-service:
+    build:
+      context: ../gateway
+      dockerfile: deployment/docker/Dockerfile
+    container_name: gateway-service
+    depends_on:
+      - service-discovery
+      - auth-service
+      - payment-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE: http://service-discovery:8761/eureka
+    ports:
+      - "8080:8080"
+    networks:
+      - pagamento-net
+    restart: unless-stopped
+
+# Volumes e redes
+volumes:
+  pg-data:
+
+networks:
+  pagamento-net:
+    driver: bridge

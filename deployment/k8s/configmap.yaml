@@ -1,6 +1,14 @@
-// TODO: Implementar a classe configmap.yaml
-// Esta classe pertence ao serviço correspondente
-// e deve seguir as boas práticas de TDD e segurança.
-public class configmap.yaml {
-
-}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pagamento-config
+data:
+  SPRING_PROFILES_ACTIVE: "k8s"
+  EUREKA_CLIENT_SERVICE-URL_DEFAULTZONE: "http://service-discovery:8761/eureka"
+  SPRING_KAFKA_BOOTSTRAP-SERVERS: "kafka-service:9092"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-service:5432/pagamento_db"
+  MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,info,prometheus"
+  MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: "always"
+  MANAGEMENT_HEALTH_PROBES_ENABLED: "true"
+  SERVER_PORT: "8080"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger-collector:4317"

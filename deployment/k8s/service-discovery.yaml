@@ -1,6 +1,41 @@
-// TODO: Implementar a classe service-discovery.yaml
-// Esta classe pertence ao serviço correspondente
-// e deve seguir as boas práticas de TDD e segurança.
-public class service-discovery.yaml {
-
-}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-discovery
+  labels:
+    app: pagamento
+    tier: infrastructure
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pagamento
+      service: discovery
+  template:
+    metadata:
+      labels:
+        app: pagamento
+        service: discovery
+    spec:
+      containers:
+      - name: service-discovery
+        image: springcloud/eureka
+        ports:
+        - containerPort: 8761
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "k8s"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-discovery
+spec:
+  selector:
+    app: pagamento
+    service: discovery
+  ports:
+  - protocol: TCP
+    port: 8761
+    targetPort: 8761
+  type: ClusterIP
