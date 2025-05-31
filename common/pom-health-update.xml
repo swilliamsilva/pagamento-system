@@ -1,0 +1,29 @@
+<!-- Adicionar no pom.xml do módulo common -->
+<dependencies>
+    <!-- Spring Boot Actuator -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    
+    <!-- JDBC para DatabaseHealthChecker -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-jdbc</artifactId>
+        <optional>true</optional>
+    </dependency>
+    
+    <!-- Kafka para KafkaHealthChecker -->
+    <dependency>
+        <groupId>org.springframework.kafka</groupId>
+        <artifactId>spring-kafka</artifactId>
+        <optional>true</optional>
+    </dependency>
+    
+    <!-- Web para ExternalServiceHealthChecker -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+        <optional>true</optional>
+    </dependency>
+</dependencies>
