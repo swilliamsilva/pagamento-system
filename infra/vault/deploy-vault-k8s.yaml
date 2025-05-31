@@ -1,0 +1,160 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault
+  namespace: pagamento
+spec:
+  selector:
+    app: vault
+  ports:
+    - protocol: TCP
+      port: 8200
+      targetPort: 8200
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: vault
+  namespace: pagamento
+spec:
+  serviceName: vault
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vault
+  template:
+    metadata:
+      labels:
+        app: vault
+    spec:
+      serviceAccountName: vault-auth
+      securityContext:
+        fsGroup: 1000
+      containers:
+      - name: vault
+        image: hashicorp/vault:1.16
+        args: ["server", "-config=/vault/config/vault-config.hcl"]
+        env:
+        - name: VAULT_ADDR
+          value: "http://0.0.0.0:8200"
+        - name: VAULT_API_ADDR
+          value: "http://0.0.0.0:8200"
+        ports:
+        - containerPort: 8200
+          name: http
+        - containerPort: 8201
+          name: cluster
+        volumeMounts:
+        - name: vault-data
+          mountPath: /vault/data
+        - name: vault-config
+          mountPath: /vault/config
+        - name: vault-policies
+          mountPath: /vault/config/policies
+        readinessProbe:
+          httpGet:
+            path: /v1/sys/health
+            port: 8200
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /v1/sys/health
+            port: 8200
+          initialDelaySeconds: 30
+          periodSeconds: 15
+      volumes:
+      - name: vault-data
+        persistentVolumeClaim:
+          claimName: vault-data
+      - name: vault-config
+        configMap:
+          name: vault-config
+      - name: vault-policies
+        configMap:
+          name: vault-policies
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-config
+  namespace: pagamento
+data:
+  vault-config.hcl: |
+    storage "raft" {
+      path    = "/vault/data"
+      node_id = "node1"
+    }
+
+    listener "tcp" {
+      address     = "0.0.0.0:8200"
+      tls_disable = 1
+    }
+
+    api_addr = "http://vault.pagamento.svc.cluster.local:8200"
+    cluster_addr = "https://vault.pagamento.svc.cluster.local:8201"
+    ui = true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-policies
+  namespace: pagamento
+data:
+  pagamento-policy.hcl: |
+    path "secret/data/pagamento/*" {
+      capabilities = ["create", "read", "update", "delete", "list"]
+    }
+
+    path "secret/metadata/pagamento/*" {
+      capabilities = ["list"]
+    }
+
+    path "secret/data/infra/*" {
+      capabilities = ["read"]
+    }
+
+    path "auth/approle/login" {
+      capabilities = ["create", "read"]
+    }
+
+    path "sys/leases/renew" {
+      capabilities = ["create"]
+    }
+
+    path "sys/capabilities-self" {
+      capabilities = ["read"]
+    }
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vault-data
+  namespace: pagamento
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: role-tokenreview-binding
+  namespace: pagamento
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:auth-delegator
+subjects:
+- kind: ServiceAccount
+  name: vault-auth
+  namespace: pagamento
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault-auth
+  namespace: pagamento
