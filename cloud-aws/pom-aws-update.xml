@@ -1,0 +1,23 @@
+<!-- Adicionar no pom.xml do módulo cloud-aws -->
+<properties>
+    <aws.sdk.version>2.25.0</aws.sdk.version>
+</properties>
+
+<dependencies>
+    <!-- AWS SDK -->
+    <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>s3</artifactId>
+        <version>${aws.sdk.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>sns</artifactId>
+        <version>${aws.sdk.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>url-connection-client</artifactId>
+        <version>${aws.sdk.version}</version>
+    </dependency>
+</dependencies>
