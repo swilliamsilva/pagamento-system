@@ -1,0 +1,160 @@
+name: Payment Service CI/CD
+
+on:
+  push:
+    branches: [ main ]
+    paths: 
+      - 'payment-service/**'
+      - 'common/**'
+  pull_request:
+    branches: [ main ]
+    paths: 
+      - 'payment-service/**'
+      - 'common/**'
+
+env:
+  REGISTRY: docker.io
+  IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/payment-service
+  K8S_NAMESPACE: pagamento-production
+  APP_NAME: payment-service
+
+jobs:
+  build-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      kafka:
+        image: confluentinc/cp-kafka:7.5.0
+        ports:
+          - 9092:9092
+        env:
+          KAFKA_BROKER_ID: 1
+          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+          KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+        options: >-
+          --health-cmd "kafka-topics --bootstrap-server localhost:9092 --list"
+          --health-interval 20s
+          --health-timeout 10s
+          --health-retries 5
+          
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: 'maven'
+        
+    - name: Build with Maven
+      run: mvn -B clean package -DskipTests -f payment-service/pom.xml
+      
+    - name: Run Unit Tests
+      run: mvn -B test -f payment-service/pom.xml -Dspring.profiles.active=test
+      
+    - name: Run Integration Tests
+      run: |
+        mvn -B verify -f payment-service/pom.xml -Dspring.profiles.active=test -Dspring.datasource.url=jdbc:postgresql://localhost:5432/testdb -Dspring.kafka.bootstrap-servers=localhost:9092
+        
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      with:
+        projectBaseDir: payment-service
+        
+  docker-build-push:
+    name: Build and Push Docker Image
+    needs: build-test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: payment-service
+        file: payment-service/Dockerfile
+        push: true
+        tags: ${{ env.IMAGE_NAME }}:latest,${{ env.IMAGE_NAME }}:${{ github.sha }}
+        build-args: |
+          JAR_FILE=target/payment-service-*.jar
+          
+  deploy-staging:
+    name: Deploy to Staging
+    needs: docker-build-push
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Kubeconfig
+      uses: azure/k8s-set-context@v3
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ secrets.STAGING_KUBECONFIG }}
+        
+    - name: Deploy to Kubernetes
+      uses: k8s-deploy-action@v1.2
+      with:
+        namespace: ${{ env.K8S_NAMESPACE }}
+        manifests: |
+          deployment/k8s/payment-deployment.yaml
+        images: |
+          ${{ env.IMAGE_NAME }}:${{ github.sha }}
+        
+  deploy-production:
+    name: Deploy to Production
+    needs: [build-test, docker-build-push, deploy-staging]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Kubeconfig
+      uses: azure/k8s-set-context@v3
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ secrets.PRODUCTION_KUBECONFIG }}
+        
+    - name: Deploy to Kubernetes
+      uses: k8s-deploy-action@v1.2
+      with:
+        namespace: ${{ env.K8S_NAMESPACE }}
+        manifests: |
+          deployment/k8s/payment-deployment.yaml
+        images: |
+          ${{ env.IMAGE_NAME }}:${{ github.sha }}
