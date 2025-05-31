@@ -1,0 +1,4 @@
+authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage=digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName=DNS:pagamento.com,DNS:*.pagamento.com,DNS:localhost,IP:127.0.0.1
