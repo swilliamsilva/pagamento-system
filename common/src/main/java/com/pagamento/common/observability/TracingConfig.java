@@ -1,53 +1,88 @@
 package com.pagamento.common.observability;
 
-import io.opencensus.exporter.trace.jaeger.JaegerExporter;
-import io.opencensus.exporter.trace.logging.LoggingTraceExporter;
-import io.opencensus.trace.Tracing;
-import io.opencensus.trace.config.TraceConfig;
-import io.opencensus.trace.samplers.Samplers;
+import io.micrometer.tracing.Tracer;
+import io.micrometer.tracing.propagation.Propagator;
+import io.micrometer.tracing.otel.bridge.*;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.trace.TracerProvider;
+import io.opentelemetry.context.propagation.ContextPropagators;
+import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.resources.Resource;
+import io.opentelemetry.sdk.trace.SdkTracerProvider;
+import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
+import io.opentelemetry.sdk.trace.export.SpanExporter;
+import io.opentelemetry.sdk.trace.samplers.Sampler;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import javax.annotation.PostConstruct;
+import java.util.concurrent.TimeUnit;
+
+import static io.opentelemetry.semconv.ResourceAttributes.SERVICE_NAME;
 
 @Configuration
 public class TracingConfig {
 
-    @PostConstruct
-    public void init() {
-        // Configurar sampler (amostra 100% em dev, 10% em prod)
-        String env = System.getenv().getOrDefault("ENV", "dev");
-        TraceConfig traceConfig = Tracing.getTraceConfig();
-        
-        if ("prod".equals(env)) {
-            traceConfig.updateActiveTraceParams(
-                traceConfig.getActiveTraceParams()
-                    .toBuilder()
-                    .setSampler(Samplers.probabilitySampler(0.1))
-                    .build()
-            );
-        } else {
-            traceConfig.updateActiveTraceParams(
-                traceConfig.getActiveTraceParams()
-                    .toBuilder()
-                    .setSampler(Samplers.alwaysSample())
-                    .build()
-            );
-        }
+    @Value("${spring.application.name:payment-service}")
+    private String applicationName;
+    
+    @Value("${otel.exporter.otlp.endpoint:http://localhost:4317}")
+    private String otlpEndpoint;
+    
+    @Value("${ENV:dev}")
+    private String environment;
 
-        // Registrar exportadores
-        LoggingTraceExporter.register();
-        
-        // Jaeger apenas se configurado
-        if (System.getenv("JAEGER_ENDPOINT") != null) {
-            JaegerExporter.createAndRegister(
-                System.getenv("JAEGER_ENDPOINT"),
-                "pagamento-service"
-            );
-        }
+    @Bean
+    public OpenTelemetrySdk openTelemetrySdk() {
+        Resource resource = Resource.getDefault()
+            .merge(Resource.builder()
+                .put(SERVICE_NAME, applicationName)
+                .build());
+
+        // Configurar sampler baseado no ambiente
+        Sampler sampler = "prod".equalsIgnoreCase(environment) 
+            ? Sampler.traceIdRatioBased(0.1)   // 10% em produção
+            : Sampler.alwaysOn();              // 100% em outros ambientes
+
+        // Configurar exportador apenas se endpoint estiver definido
+        SpanExporter exporter = OtlpGrpcSpanExporter.builder()
+            .setEndpoint(otlpEndpoint)
+            .setTimeout(2, TimeUnit.SECONDS)
+            .build();
+
+        SdkTracerProvider tracerProvider = SdkTracerProvider.builder()
+            .addSpanProcessor(BatchSpanProcessor.builder(exporter).build())
+            .setSampler(sampler)
+            .setResource(resource)
+            .build();
+
+        OpenTelemetrySdk openTelemetrySdk = OpenTelemetrySdk.builder()
+            .setTracerProvider(tracerProvider)
+            .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
+            .build();
+
+        GlobalOpenTelemetry.set(openTelemetrySdk);
+        return openTelemetrySdk;
     }
 
     @Bean
-    public CorrelationIdFilter correlationIdFilter() {
-        return new CorrelationIdFilter();
+    public Tracer tracer(OpenTelemetrySdk openTelemetrySdk) {
+        return new OtelTracer(
+            new OtelCurrentTraceContext(),
+            new Slf4JEventListener(),
+            event -> {}, // No-op event listener
+            new OtelBaggageManager(),
+            openTelemetrySdk.getTracerProvider().get("io.micrometer.tracing"),
+            new OtelHttpClientHandler(),
+            new OtelHttpServerHandler(),
+            new OtelPropagator(),
+            new OtelCurrentTraceContext()
+        );
+    }
+
+    @Bean
+    public Propagator propagator() {
+        return new OtelPropagator();
     }
 }
