@@ -1,12 +1,12 @@
-<!-- Adicionar no pom.xml do módulo common -->
 <properties>
+    <java.version>1.8</java.version>
     <opentelemetry.version>1.35.0</opentelemetry.version>
     <micrometer-tracing.version>1.2.0</micrometer-tracing.version>
     <aspectj.version>1.9.22</aspectj.version>
 </properties>
 
 <dependencies>
-    <!-- OpenTelemetry -->
+    <!-- OpenTelemetry Core -->
     <dependency>
         <groupId>io.opentelemetry</groupId>
         <artifactId>opentelemetry-api</artifactId>
@@ -22,15 +22,15 @@
         <artifactId>opentelemetry-exporter-otlp</artifactId>
         <version>${opentelemetry.version}</version>
     </dependency>
-    
-    <!-- Micrometer Tracing -->
+
+    <!-- Micrometer Tracing Bridge -->
     <dependency>
         <groupId>io.micrometer</groupId>
         <artifactId>micrometer-tracing-bridge-otel</artifactId>
         <version>${micrometer-tracing.version}</version>
     </dependency>
-    
-    <!-- AspectJ para LoggingAspect -->
+
+    <!-- AspectJ para AOP e LoggingAspect -->
     <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>

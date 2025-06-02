@@ -24,6 +24,8 @@ public class RetryConfig {
         java.sql.SQLTransientException.class
     ));
 
+	private static final String IntervalFunction = null;
+
     @Bean
     public RetryRegistry retryRegistry() {
         return RetryRegistry.of(createDefaultConfig());
@@ -35,7 +37,7 @@ public class RetryConfig {
         long initialInterval = isProduction ? 500 : 300;
         double multiplier = isProduction ? 1.5 : 2.0;
         
-        return RetryConfig.custom()
+        return ((Object) RetryConfig.custom())
             .maxAttempts(maxAttempts)
             .intervalFunction(RetryConfig.IntervalFunction.ofExponentialBackoff(
                 Duration.ofMillis(initialInterval), 
@@ -46,7 +48,12 @@ public class RetryConfig {
             .build();
     }
 
-    @Bean(name = "externalServiceRetry")
+    private static Object custom() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Bean(name = "externalServiceRetry")
     public Retry externalServiceRetry(RetryRegistry registry) {
         return registry.retry("externalService", RetryConfig.custom()
             .maxAttempts(5)

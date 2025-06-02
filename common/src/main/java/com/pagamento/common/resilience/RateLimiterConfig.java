@@ -22,14 +22,19 @@ public class RateLimiterConfig {
     private RateLimiterConfig createDefaultConfig() {
         boolean isProduction = "prod".equalsIgnoreCase(environment);
         
-        return RateLimiterConfig.custom()
+        return ((Object) RateLimiterConfig.custom())
             .limitForPeriod(isProduction ? 200 : 100)
             .limitRefreshPeriod(Duration.ofSeconds(1))
             .timeoutDuration(Duration.ofMillis(isProduction ? 100 : 500))
             .build();
     }
 
-    @Bean(name = "paymentProcessingRateLimiter")
+    private static Object custom() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Bean(name = "paymentProcessingRateLimiter")
     public RateLimiter paymentProcessingRateLimiter(RateLimiterRegistry registry) {
         return registry.rateLimiter("paymentProcessing", RateLimiterConfig.custom()
             .limitForPeriod(50)

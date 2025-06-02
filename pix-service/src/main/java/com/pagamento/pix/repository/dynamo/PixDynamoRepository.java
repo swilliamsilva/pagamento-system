@@ -16,7 +16,7 @@ public class PixDynamoRepository {
         return transaction;
     }
 
-    public PixTransaction findById(String id) {
+    public com.pagamento.pix.repository.dynamo.PixTransaction findById(String id) {
         return dynamoDBMapper.load(PixTransaction.class, id);
     }
 }

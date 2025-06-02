@@ -4,8 +4,12 @@ import com.pagamento.common.exception.AuthenticationException;
 import com.pagamento.entity.User;
 import com.pagamento.repository.UserRepository;
 import com.pagamento.service.JwtTokenProvider;
+
+import lombok.var;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -37,11 +41,11 @@ class AuthServiceTest {
         when(passwordEncoder.matches("validPass123", "encodedPass")).thenReturn(true);
         when(tokenProvider.createToken(anyString(), anyList())).thenReturn("jwt.token.xyz");
         
-        var response = authService.authenticate("user@example.com", "validPass123");
+        var response = (var) authService.authenticate("user@example.com", "validPass123");
         
         assertNotNull(response);
-        assertEquals("jwt.token.xyz", response.getToken());
-        assertEquals("SUCCESS", response.getStatus());
+        assertEquals("jwt.token.xyz", ((Object) response).getToken());
+        assertEquals("SUCCESS", ((Object) response).getStatus());
     }
 
     @Test
@@ -55,7 +59,12 @@ class AuthServiceTest {
         );
     }
 
-    @Test
+    private void assertThrows(Class<AuthenticationException> class1, Executable executable) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Test
     void authenticate_UserNotFound_ThrowsException() {
         when(userRepository.findByEmail("unknown@example.com")).thenReturn(Optional.empty());
         

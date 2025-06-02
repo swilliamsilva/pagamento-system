@@ -9,7 +9,9 @@ import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import io.micrometer.tracing.Tracer;
 import java.util.Arrays;
+import java.util.Timer;
 import java.util.UUID;
+import java.util.logging.LogManager;
 import java.util.stream.Collectors;
 
 @Aspect
@@ -37,16 +39,16 @@ public class LoggingAspect {
         String traceId = "no-trace";
         String spanId = "no-span";
         
-        if (tracer.currentSpan() != null) {
-            traceId = tracer.currentSpan().context().traceId();
-            spanId = tracer.currentSpan().context().spanId();
+        if (Timer.currentSpan() != null) {
+            traceId = Timer.currentSpan().context().traceId();
+            spanId = Timer.currentSpan().context().spanId();
         }
         
         MDC.put("traceId", traceId);
         MDC.put("spanId", spanId);
         MDC.put("logId", UUID.randomUUID().toString().substring(0, 8));
         
-        logger.debug("Method {} called with args: [{}]", methodName, args);
+        LogManager.debug("Method {} called with args: [{}]", methodName, args);
         
         long startTime = System.currentTimeMillis();
         try {

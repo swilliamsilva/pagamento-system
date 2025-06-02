@@ -55,9 +55,9 @@ public class AuthService {
         return new AuthResponse(generateToken(username), refreshToken, "USER");
     }
     
-    private String generateToken(String username) {
+    private String generateToken(Object object) {
         return ((Object) Jwts.builder())
-            .setSubject(username)
+            .setSubject(object)
             .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
             .signWith(SignatureAlgorithm.HS512, SECRET)
             .compact();

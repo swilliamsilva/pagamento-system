@@ -53,7 +53,12 @@ public class CircuitBreakerConfig {
             .build();
     }
 
-    @Bean(name = "paymentServiceCircuitBreaker")
+    private static Object custom() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Bean(name = "paymentServiceCircuitBreaker")
     public CircuitBreaker paymentServiceCircuitBreaker(CircuitBreakerRegistry registry) {
         return registry.circuitBreaker("paymentService", CircuitBreakerConfig.custom()
             .failureRateThreshold(30)
