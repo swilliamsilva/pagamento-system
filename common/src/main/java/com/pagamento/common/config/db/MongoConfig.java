@@ -1,6 +1,10 @@
-// TODO: Implementar a classe MongoConfig
-// Esta classe pertence ao serviço correspondente
-// e deve seguir as boas práticas de TDD e segurança.
-public class MongoConfig {
+package com.pagamento.common.config.db;
 
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.config.EnableMongoAuditing;
+
+@Configuration
+@EnableMongoAuditing
+public class MongoConfig {
+    // Configurações customizadas do MongoDB
 }

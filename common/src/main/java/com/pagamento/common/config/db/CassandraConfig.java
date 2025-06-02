@@ -1,6 +1,14 @@
-// TODO: Implementar a classe CassandraConfig
-// Esta classe pertence ao serviço correspondente
-// e deve seguir as boas práticas de TDD e segurança.
-public class CassandraConfig {
+package com.pagamento.common.config.db;
 
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.cassandra.config.AbstractCassandraConfiguration;
+import org.springframework.data.cassandra.repository.config.EnableCassandraRepositories;
+
+@Configuration
+@EnableCassandraRepositories(basePackages = "com.pagamento.card.repository.cassandra")
+public class CassandraConfig extends AbstractCassandraConfiguration {
+    @Override
+    protected String getKeyspaceName() {
+        return "payment_keyspace";
+    }
 }

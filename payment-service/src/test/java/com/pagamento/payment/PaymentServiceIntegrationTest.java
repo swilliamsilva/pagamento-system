@@ -13,6 +13,7 @@ import com.pagamento.service.AntiFraudService;
 import com.pagamento.service.PaymentGatewayService;
 import com.pagamento.service.PaymentService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -55,7 +56,7 @@ class PaymentServiceIntegrationTest {
         User user = new User("user@example.com", "pass", "USER");
         user.addPaymentMethod(method);
         
-        Payment payment = Payment.builder()
+        Payment payment = ((Object) Payment.builder())
             .amount(new BigDecimal("100.00"))
             .currency("BRL")
             .user(user)
@@ -69,7 +70,7 @@ class PaymentServiceIntegrationTest {
         when(antiFraudService.analyze(any())).thenReturn(true);
         
         // Execution
-        PaymentDTO result = paymentService.processPayment(payment.getId().toString());
+        com.pagamento.payment.PaymentDTO result = paymentService.processPayment(payment.getId().toString());
         
         // Verification
         assertNotNull(result);
@@ -84,7 +85,7 @@ class PaymentServiceIntegrationTest {
         User user = new User("user@example.com", "pass", "USER");
         user.addPaymentMethod(method);
         
-        Payment payment = Payment.builder()
+        Payment payment = ((Object) Payment.builder())
             .amount(new BigDecimal("10000.00")) // High amount
             .currency("BRL")
             .user(user)
@@ -105,14 +106,19 @@ class PaymentServiceIntegrationTest {
         verify(messageProducer).sendMessage(eq("payment.failed"), any());
     }
 
-    @Test
+    private void assertThrows(Class<com.pagamento.payment.PaymentProcessingException> class1, Executable executable) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Test
     void processPayment_ConcurrentRequests_HandlesLocking() throws InterruptedException {
         // Setup
         PaymentMethod method = new PaymentMethod("CREDIT_CARD", "**** 1234");
         User user = new User("user@example.com", "pass", "USER");
         user.addPaymentMethod(method);
         
-        Payment payment = Payment.builder()
+        Payment payment = ((Object) Payment.builder())
             .amount(new BigDecimal("100.00"))
             .currency("BRL")
             .user(user)
@@ -136,7 +142,7 @@ class PaymentServiceIntegrationTest {
         
         Thread t1 = new Thread(task);
         Thread t2 = new Thread(task);
-        
+        		
         t1.start();
         t2.start();
         
@@ -144,7 +150,7 @@ class PaymentServiceIntegrationTest {
         t2.join();
         
         // Verify only one successful processing
-        Payment updated = paymentRepository.findById(payment.getId()).orElseThrow();
+        Payment updated = ((Object) paymentRepository.findById(payment.getId())).orElseThrow();
         assertNotNull(updated.getProcessedAt());
     }
 }

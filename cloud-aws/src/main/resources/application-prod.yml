@@ -1,6 +1,11 @@
-// TODO: Implementar a classe application-prod.yml
-// Esta classe pertence ao serviço correspondente
-// e deve seguir as boas práticas de TDD e segurança.
-public class application-prod.yml {
-
-}
+spring:
+  profiles: prod
+  datasource:
+    url: ${DB_PROD_URL}
+    username: ${DB_PROD_USER}
+    password: ${DB_PROD_PASS}
+  
+# Configurações específicas de produção
+logging:
+  level:
+    root: INFO

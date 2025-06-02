@@ -32,7 +32,7 @@ class AuthServiceTest {
 
     @Test
     void authenticate_ValidUser_ReturnsToken() {
-        User user = new User("user@example.com", "encodedPass", "USER");
+        UserRepository user = new UserRepository("user@example.com", "encodedPass", "USER");
         when(userRepository.findByEmail("user@example.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("validPass123", "encodedPass")).thenReturn(true);
         when(tokenProvider.createToken(anyString(), anyList())).thenReturn("jwt.token.xyz");
@@ -46,7 +46,7 @@ class AuthServiceTest {
 
     @Test
     void authenticate_InvalidPassword_ThrowsException() {
-        User user = new User("user@example.com", "encodedPass", "USER");
+        UserRepository user = new UserRepository("user@example.com", "encodedPass", "USER");
         when(userRepository.findByEmail("user@example.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("wrongPass", "encodedPass")).thenReturn(false);
         
@@ -66,7 +66,7 @@ class AuthServiceTest {
 
     @Test
     void authenticate_InactiveUser_ThrowsException() {
-        User user = new User("inactive@example.com", "encodedPass", "USER");
+        UserRepository user = new UserRepository("inactive@example.com", "encodedPass", "USER");
         user.setActive(false);
         
         when(userRepository.findByEmail("inactive@example.com")).thenReturn(Optional.of(user));

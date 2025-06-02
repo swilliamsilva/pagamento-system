@@ -1,6 +1,11 @@
-// TODO: Implementar a classe application-dev.yml
-// Esta classe pertence ao serviço correspondente
-// e deve seguir as boas práticas de TDD e segurança.
-public class application-dev.yml {
-
-}
+spring:
+  profiles: dev
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: 
+  
+# Configurações de desenvolvimento
+logging:
+  level:
+    root: DEBUG
