@@ -1,26 +1,26 @@
-<!-- Adicionar no pom.xml do módulo common -->
 <dependencies>
-    <!-- Spring Boot Actuator -->
+    <!-- Spring Boot Actuator: necessário para criar indicadores reutilizáveis -->
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-actuator</artifactId>
+        <scope>provided</scope>
     </dependency>
-    
+
     <!-- JDBC para DatabaseHealthChecker -->
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-jdbc</artifactId>
         <optional>true</optional>
     </dependency>
-    
-    <!-- Kafka para KafkaHealthChecker -->
+
+    <!-- Kafka HealthCheck support -->
     <dependency>
         <groupId>org.springframework.kafka</groupId>
         <artifactId>spring-kafka</artifactId>
         <optional>true</optional>
     </dependency>
-    
-    <!-- Web para ExternalServiceHealthChecker -->
+
+    <!-- HTTP client para ExternalServiceHealthChecker -->
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>

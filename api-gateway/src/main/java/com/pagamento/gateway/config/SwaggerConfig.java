@@ -1,5 +1,7 @@
-package com.pagamento.gateway.config;
-
+/* package com.pagamento.gateway.config;
+ ### O gateway não precisa ter o swagger ele fica apenas para os 
+     micro seviços.
+     
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.PathSelectors;
@@ -33,3 +35,4 @@ public class SwaggerConfig {
             .build();
     }
 }
+*/
