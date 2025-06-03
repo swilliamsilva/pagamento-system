@@ -27,7 +27,7 @@ public class KafkaErrorHandler implements ErrorHandler {
     @Override
     public void handle(Exception thrownException, ConsumerRecord<?, ?> record) {
         log.error("Erro sem acesso ao consumer: topic={}, partition={}, offset={}",
-            record.topic(), record.partition(), record.offset(), thrownException);
+            record.topic(), record.partition(), record.offset(), thrownException, thrownException);
     }
 
     private void sendToDlq(ConsumerRecord<?, ?> record, Exception exception, Consumer<?, ?> consumer) {

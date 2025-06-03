@@ -27,12 +27,12 @@ public class DatabaseHealthChecker implements DependencyHealthChecker {
             Integer result = jdbcTemplate.queryForObject("SELECT 1", Integer.class);
             Duration duration = Duration.between(start, Instant.now());
             
-            return Health.up()
+            return ((Object) Health.up())
                 .withDetail("response_time_ms", duration.toMillis())
                 .withDetail("result", result)
                 .build();
         } catch (Exception e) {
-            return Health.down()
+            return ((Object) Health.down())
                 .withDetail("error", e.getMessage())
                 .withDetail("response_time_ms", Duration.between(start, Instant.now()).toMillis())
                 .build();

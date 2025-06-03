@@ -19,7 +19,7 @@ public class KafkaMessageListener {
             // Lógica de processamento...
             ack.acknowledge(); // Confirma processamento
         } catch (Exception e) {
-            log.error("Erro processando pagamento criado", e);
+            log.error("Erro processando pagamento criado", e, e, e, e, e);
             // Não confirma para reprocessamento
         }
     }
