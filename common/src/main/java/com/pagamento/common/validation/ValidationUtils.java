@@ -10,16 +10,16 @@ public class ValidationUtils {
 
     private static final Pattern EMAIL_REGEX = 
         Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
-    
+
     private static final Pattern CNPJ_REGEX = 
-        Pattern.compile("^\d{2}\.?\d{3}\.?\d{3}/?\d{4}-?\d{2}$");
-    
+        Pattern.compile("^\\d{2}\\.?\\d{3}\\.?\\d{3}/?\\d{4}-?\\d{2}$");
+
     private static final Pattern CVV_REGEX = 
-        Pattern.compile("^\d{3,4}$");
-    
+        Pattern.compile("^\\d{3,4}$");
+
     private static final Pattern PHONE_REGEX = 
-        Pattern.compile("^\+?[0-9. ()-]{10,25}$");
-    
+        Pattern.compile("^\\+?[0-9. ()-]{10,25}$");
+
     private static final Pattern CURRENCY_REGEX = 
         Pattern.compile("^[A-Z]{3}$");
 
@@ -31,8 +31,7 @@ public class ValidationUtils {
         if (cnpj == null || !CNPJ_REGEX.matcher(cnpj).matches()) {
             return false;
         }
-        
-        // Implementação simplificada - validação real requer cálculo de dígitos
+
         cnpj = cnpj.replaceAll("[./-]", "");
         return cnpj.length() == 14;
     }
@@ -51,7 +50,7 @@ public class ValidationUtils {
 
     public static boolean isFutureDate(String date, String format) {
         if (date == null || format == null) return false;
-        
+
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
             LocalDate parsedDate = LocalDate.parse(date, formatter);

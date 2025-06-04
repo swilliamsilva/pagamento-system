@@ -4,8 +4,7 @@ import io.micrometer.tracing.Tracer;
 import io.micrometer.tracing.propagation.Propagator;
 import io.micrometer.tracing.otel.bridge.*;
 import io.opentelemetry.api.GlobalOpenTelemetry;
-import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.api.trace.TracerProvider;
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
@@ -17,6 +16,7 @@ import io.opentelemetry.sdk.trace.samplers.Sampler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import java.util.concurrent.TimeUnit;
 
 import static io.opentelemetry.semconv.ResourceAttributes.SERVICE_NAME;
@@ -26,10 +26,10 @@ public class TracingConfig {
 
     @Value("${spring.application.name:payment-service}")
     private String applicationName;
-    
+
     @Value("${otel.exporter.otlp.endpoint:http://localhost:4317}")
     private String otlpEndpoint;
-    
+
     @Value("${ENV:dev}")
     private String environment;
 
@@ -40,12 +40,10 @@ public class TracingConfig {
                 .put(SERVICE_NAME, applicationName)
                 .build());
 
-        // Configurar sampler baseado no ambiente
-        Sampler sampler = "prod".equalsIgnoreCase(environment) 
-            ? Sampler.traceIdRatioBased(0.1)   // 10% em produção
-            : Sampler.alwaysOn();              // 100% em outros ambientes
+        Sampler sampler = "prod".equalsIgnoreCase(environment)
+            ? Sampler.traceIdRatioBased(0.1)
+            : Sampler.alwaysOn();
 
-        // Configurar exportador apenas se endpoint estiver definido
         SpanExporter exporter = OtlpGrpcSpanExporter.builder()
             .setEndpoint(otlpEndpoint)
             .setTimeout(2, TimeUnit.SECONDS)
@@ -57,27 +55,29 @@ public class TracingConfig {
             .setResource(resource)
             .build();
 
-        OpenTelemetrySdk openTelemetrySdk = OpenTelemetrySdk.builder()
+        OpenTelemetrySdk sdk = OpenTelemetrySdk.builder()
             .setTracerProvider(tracerProvider)
             .setPropagators(ContextPropagators.create(W3CTraceContextPropagator.getInstance()))
             .build();
 
-        GlobalOpenTelemetry.set(openTelemetrySdk);
-        return openTelemetrySdk;
+        GlobalOpenTelemetry.set(sdk);
+        return sdk;
     }
 
     @Bean
-    public Tracer tracer(OpenTelemetrySdk openTelemetrySdk) {
+    public Tracer micrometerTracer(OpenTelemetrySdk sdk) {
+        OtelCurrentTraceContext currentTraceContext = new OtelCurrentTraceContext();
+
         return new OtelTracer(
-            new OtelCurrentTraceContext(),
+            currentTraceContext,
             new Slf4JEventListener(),
-            event -> {}, // No-op event listener
+            e -> {}, // No-op event listener
             new OtelBaggageManager(),
-            openTelemetrySdk.getTracerProvider().get("io.micrometer.tracing"),
+            sdk.getTracerProvider().get("io.micrometer.tracing"),
             new OtelHttpClientHandler(),
             new OtelHttpServerHandler(),
             new OtelPropagator(),
-            new OtelCurrentTraceContext()
+            currentTraceContext
         );
     }
 

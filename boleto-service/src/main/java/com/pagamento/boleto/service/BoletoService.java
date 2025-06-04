@@ -1,12 +1,13 @@
 package com.pagamento.boleto.service;
 
 import com.pagamento.boleto.model.Boleto;
-import com.pagamento.boleto.model.BoletoResponse;
+import com.pagamento.boleto.dto.BoletoResponse;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Random;
+import java.util.UUID;
 
 @Service
 public class BoletoService {
@@ -14,13 +15,7 @@ public class BoletoService {
     public BoletoResponse processarBoleto(Boleto boleto) {
         // Validar boleto
         if (!validarBoleto(boleto)) {
-            return new BoletoResponse(
-                boleto.getCodigoBarras(),
-                null,
-                LocalDateTime.now(),
-                "REJEITADO",
-                "Boleto inválido ou vencido"
-            );
+            return criarResposta(boleto, null, "REJEITADO", "Boleto inválido ou vencido");
         }
 
         // Simular processamento bancário
@@ -28,43 +23,31 @@ public class BoletoService {
         
         // Simular falha aleatória (5% de chance)
         if (simularFalhaProcessamento()) {
-            return new BoletoResponse(
-                boleto.getCodigoBarras(),
-                numeroControle,
-                LocalDateTime.now(),
-                "FALHA",
-                "Falha no processamento do banco"
-            );
+            return criarResposta(boleto, numeroControle, "FALHA", "Falha no processamento do banco");
         }
 
         // Pagamento bem-sucedido
+        return criarResposta(boleto, numeroControle, "PAGO", "Pagamento realizado com sucesso");
+    }
+
+    private BoletoResponse criarResposta(Boleto boleto, String numeroControle, String status, String mensagem) {
         return new BoletoResponse(
             boleto.getCodigoBarras(),
             numeroControle,
             LocalDateTime.now(),
-            "PAGO",
-            "Pagamento realizado com sucesso"
+            status,
+            mensagem
         );
     }
 
     private boolean validarBoleto(Boleto boleto) {
-        // Verificar se o código de barras é válido (simulação)
-        if (boleto.getCodigoBarras() == null || boleto.getCodigoBarras().length() != 44) {
-            return false;
-        }
-        
-        // Verificar se o boleto está vencido
-        if (boleto.getDataVencimento().isBefore(LocalDate.now())) {
-            return false;
-        }
-        
-        // Verificar valor positivo
-        return boleto.getValor().compareTo(java.math.BigDecimal.ZERO) > 0;
+        // Validações básicas já feitas pela anotação @Valid
+        // Verificação adicional de vencimento
+        return !boleto.getDataVencimento().isBefore(LocalDate.now());
     }
 
     private String gerarNumeroControle() {
-        Random rand = new Random();
-        return "CTRL" + String.format("%010d", rand.nextInt(1000000000));
+        return "CTRL-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
     private boolean simularFalhaProcessamento() {

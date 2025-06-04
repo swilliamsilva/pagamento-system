@@ -12,4 +12,9 @@ public class ConcurrentKafkaListenerContainerFactory<T1, T2> {
 		return null;
 	}
 
+	public void setConcurrency(int i) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -1,5 +1,5 @@
 package com.pagamento.auth.repository;
 
-public class UserRepository {
+public interface JpaRepository<T1, T2> {
 
 }

@@ -26,4 +26,9 @@ public class JwtTokenProvider {
 		return null;
 	}
 
+	public Object getUsername(String token) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

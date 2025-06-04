@@ -1,20 +1,9 @@
 package com.pagamento.auth.repository;
 
-public class UserRepository {
+import com.pagamento.auth.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.Optional;
 
-	public Object findByUsername(Object username) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getUsername() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getRoles() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByUsername(Object object);
 }

@@ -6,6 +6,51 @@
 </properties>
 
 <dependencies>
+
+       <!-- Micrometer + OTEL -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-otel</artifactId>
+            <version>${micrometer-tracing.version}</version>
+        </dependency>
+<dependency>
+    <groupId>io.micrometer</groupId>
+    <artifactId>micrometer-core</artifactId>
+     <version>${micrometer-tracing.version}</version>
+   </dependency>
+   <dependency>
+    <groupId>io.opentelemetry</groupId>
+    <artifactId>opentelemetry-exporter-otlp</artifactId>
+    <version>1.34.1</version>
+</dependency><dependency>
+    <groupId>io.opentelemetry</groupId>
+    <artifactId>opentelemetry-exporter-otlp</artifactId>
+    <version>1.34.1</version>
+</dependency>
+<dependency>
+    <groupId>io.micrometer</groupId>
+    <artifactId>micrometer-tracing-bridge-otel</artifactId>
+    <version>1.2.0</version>
+</dependency>
+<dependency>
+    <groupId>io.micrometer</groupId>
+    <artifactId>micrometer-tracing</artifactId>
+    <version>1.2.0</version>
+</dependency>
+
+
+   
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>io.micrometer</groupId>
+    <artifactId>micrometer-registry-prometheus</artifactId>
+    <version>1.12.3</version>
+</dependency>
+
     <!-- OpenTelemetry Core -->
     <dependency>
         <groupId>io.opentelemetry</groupId>
@@ -17,6 +62,50 @@
         <artifactId>opentelemetry-sdk</artifactId>
         <version>${opentelemetry.version}</version>
     </dependency>
+    <dependency>
+        <groupId>io.opencensus</groupId>
+        <artifactId>opencensus-contrib-http-util</artifactId>
+        <version>0.31.1</version>
+    </dependency>
+    
+    <!-- OpenCensus Core Tracing -->
+    <dependency>
+        <groupId>io.opencensus</groupId>
+        <artifactId>opencensus-api</artifactId>
+        <version>0.31.1</version>
+    </dependency>
+    <dependency>
+        <groupId>io.opencensus</groupId>
+        <artifactId>opencensus-impl</artifactId>
+        <version>0.31.1</version>
+    </dependency>
+    <dependency>
+        <groupId>io.opencensus</groupId>
+        <artifactId>opencensus-exporter-trace-logging</artifactId>
+        <version>0.31.1</version>
+    </dependency>
+
+    <!-- SLF4J for MDC logging -->
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.36</version>
+    </dependency>
+
+    <!-- Servlet API for Filters -->
+    <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>4.0.1</version>
+        <scope>provided</scope>
+    </dependency>
+
+    <!-- Spring Web for OncePerRequestFilter -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    
     <dependency>
         <groupId>io.opentelemetry</groupId>
         <artifactId>opentelemetry-exporter-otlp</artifactId>

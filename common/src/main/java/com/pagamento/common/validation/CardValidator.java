@@ -16,10 +16,10 @@ public class CardValidator implements ConstraintValidator<ValidCard, String> {
         }
 
         // Remover espaços e traços
-        String cleanCard = cardNumber.replaceAll("\s+|-", "");
+        String cleanCard = cardNumber.replaceAll("\\s+|-", "");
 
         // Verificar se é numérico e tem comprimento válido
-        if (!cleanCard.matches("\d{13,19}")) {
+        if (!cleanCard.matches("\\d{13,19}")) {
             return false;
         }
 

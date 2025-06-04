@@ -2,72 +2,78 @@ package com.pagamento.auth.service;
 
 import com.pagamento.auth.dto.AuthRequest;
 import com.pagamento.auth.dto.AuthResponse;
+import com.pagamento.auth.entity.User;
+import com.pagamento.auth.exception.InvalidCredentialsException;
+import com.pagamento.auth.exception.InvalidTokenException;
+import com.pagamento.auth.exception.UserNotFoundException;
 import com.pagamento.auth.repository.UserRepository;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import java.util.Date;
 
 @Service
 public class AuthService {
 
+    private final UserRepository userRepository;
+    private final AuthenticationManager authenticationManager;
+    private final TokenProvider tokenProvider;
+
     @Autowired
-    private UserRepository userRepository;
-    
-    @Autowired
-    private AuthenticationManager authenticationManager;
-    
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-    
-    private final String SECRET = "meuSegredoSuperSecreto";
-    private final long EXPIRATION_TIME = 864_000_000; // 10 dias
-    private final long REFRESH_EXPIRATION = 2_592_000_000; // 30 dias
+    public AuthService(
+        UserRepository userRepository,
+        AuthenticationManager authenticationManager,
+        TokenProvider tokenProvider
+    ) {
+        this.userRepository = userRepository;
+        this.authenticationManager = authenticationManager;
+        this.tokenProvider = tokenProvider;
+    }
 
     public AuthResponse authenticate(AuthRequest request) {
-        Authentication authentication = ((AuthenticationManager) authenticationManager).authenticate(
-            new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
-        
-        UserRepository user = ((Object) userRepository.findByUsername(request.getUsername()))
-            .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
-        
-        String token = generateToken(((AuthRequest) user).getUsername());
-        String refreshToken = generateRefreshToken(user.getUsername());
-        
-        return new AuthResponse(token, refreshToken, user.getRoles());
+        try {
+            // Autentica as credenciais
+            authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+            );
+            
+            // Busca o usuário no banco de dados
+            User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
+            
+            // Gera os tokens usando o TokenProvider
+            String token = tokenProvider.createAccessToken(user.getUsername());
+            String refreshToken = tokenProvider.createRefreshToken(user.getUsername());
+            
+            return new AuthResponse(token, refreshToken, user.getRoles());
+            
+        } catch (BadCredentialsException e) {
+            throw new InvalidCredentialsException("Credenciais inválidas");
+        } catch (AuthenticationException e) {
+            throw new InvalidCredentialsException("Falha na autenticação", e);
+        }
     }
 
     public AuthResponse refreshToken(String refreshToken) {
-        // Lógica de validação do refresh token
-        String username = ((Object) Jwts.parser())
-            .setSigningKey(SECRET)
-            .parseClaimsJws(refreshToken)
-            .getBody()
-            .getSubject();
+        try {
+            // Valida o refresh token e extrai as claims
+            Claims claims = tokenProvider.validateAndExtractClaims(refreshToken);
+            String username = claims.getSubject();
             
-        return new AuthResponse(generateToken(username), refreshToken, "USER");
-    }
-    
-    private String generateToken(Object object) {
-        return ((Object) Jwts.builder())
-            .setSubject(object)
-            .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-            .signWith(SignatureAlgorithm.HS512, SECRET)
-            .compact();
-    }
-    
-    private String generateRefreshToken(String username) {
-        return ((Object) Jwts.builder())
-            .setSubject(username)
-            .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION))
-            .signWith(SignatureAlgorithm.HS512, SECRET)
-            .compact();
+            // Busca o usuário
+            User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
+            
+            // Gera novo token de acesso
+            String newToken = tokenProvider.createAccessToken(username);
+            
+            return new AuthResponse(newToken, refreshToken, user.getRoles());
+            
+        } catch (Exception e) {
+            throw new InvalidTokenException("Refresh token inválido ou expirado", e);
+        }
     }
 }

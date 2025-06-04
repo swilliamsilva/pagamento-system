@@ -8,8 +8,11 @@ import java.time.format.DateTimeParseException;
 
 public class ExpiryDateValidator implements ConstraintValidator<ValidExpiryDate, String> {
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MM/yy");
+
     @Override
     public void initialize(ValidExpiryDate constraintAnnotation) {
+        // Nenhuma inicialização necessária
     }
 
     @Override
@@ -18,18 +21,14 @@ public class ExpiryDateValidator implements ConstraintValidator<ValidExpiryDate,
             return false;
         }
 
-        // Formato esperado: MM/yy
-        if (!expiryDate.matches("(0[1-9]|1[0-2])/[0-9]{2}")) {
+        if (!expiryDate.matches("^(0[1-9]|1[0-2])/\\d{2}$")) {
             return false;
         }
 
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yy");
-            YearMonth expiry = YearMonth.parse(expiryDate, formatter);
-            YearMonth current = YearMonth.now();
-            
-            // Verificar se a data não expirou (inclui o mês atual)
-            return !expiry.isBefore(current);
+            YearMonth expiry = YearMonth.parse(expiryDate, FORMATTER);
+            YearMonth now = YearMonth.now();
+            return !expiry.isBefore(now);
         } catch (DateTimeParseException e) {
             return false;
         }

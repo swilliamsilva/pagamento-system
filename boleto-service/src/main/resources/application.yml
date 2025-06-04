@@ -1,11 +1,28 @@
 server:
   port: 8083
+  servlet:
+    context-path: /boleto-service
+
 spring:
   application:
     name: boleto-service
   profiles:
     active: dev
   datasource:
-    url: jdbc:postgresql://localhost/boleto_service
+    url: jdbc:postgresql://localhost:5432/boleto_service
     username: user
     password: pass
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+logging:
+  level:
+    org.springframework: INFO
+    com.pagamento: DEBUG
