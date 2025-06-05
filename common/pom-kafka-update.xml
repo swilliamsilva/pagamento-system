@@ -1,45 +1,98 @@
 <properties>
-    <java.version>1.8</java.version>
-    <spring-kafka.version>2.9.1</spring-kafka.version>
-    <kafka-clients.version>2.9.1</kafka-clients.version>
-    <jackson.version>2.17.0</jackson.version>
-    <micrometer.version>1.12.3</micrometer.version>
-    <otel.version>1.34.1</otel.version>
+  <java.version>1.8</java.version>
+  <spring-kafka.version>2.9.1</spring-kafka.version>
+  <kafka-clients.version>2.9.1</kafka-clients.version>
+  <jackson.version>2.17.0</jackson.version>
+  <micrometer.version>1.12.3</micrometer.version>
+  <otel.version>1.34.1</otel.version>
 </properties>
 
 <dependencies>
-    <!-- Spring Kafka -->
-    <dependency>
-        <groupId>org.springframework.kafka</groupId>
-        <artifactId>spring-kafka</artifactId>
-        <version>2.9.1</version>
-    </dependency>
+  <!-- Core & Data -->
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-mongodb</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-jdbc</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>com.github.derjust</groupId>
+    <artifactId>spring-data-dynamodb</artifactId>
+    <version>5.1.0</version>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.vault</groupId>
+    <artifactId>spring-vault-core</artifactId>
+  </dependency>
 
-    <!-- Kafka Client -->
-    <dependency>
-        <groupId>org.apache.kafka</groupId>
-        <artifactId>kafka-clients</artifactId>
-        <version>2.9.1</version>
-    </dependency>
+  <!-- Kafka -->
+  <dependency>
+    <groupId>org.springframework.kafka</groupId>
+    <artifactId>spring-kafka</artifactId>
+    <version>${spring-kafka.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.kafka</groupId>
+    <artifactId>kafka-clients</artifactId>
+    <version>${kafka-clients.version}</version>
+  </dependency>
 
-    <!-- JSON (Jackson) -->
-    <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}</version>
-    </dependency>
+  <!-- JSON -->
+  <dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>${jackson.version}</version>
+  </dependency>
 
-    <!-- Micrometer Tracing Bridge OpenTelemetry -->
-    <dependency>
-        <groupId>io.micrometer</groupId>
-        <artifactId>micrometer-tracing-bridge-otel</artifactId>
-        <version>${micrometer.version}</version>
-    </dependency>
+  <!-- Observability -->
+  <dependency>
+    <groupId>io.micrometer</groupId>
+    <artifactId>micrometer-core</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>io.micrometer</groupId>
+    <artifactId>micrometer-tracing-bridge-otel</artifactId>
+    <version>${micrometer.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>io.opentelemetry</groupId>
+    <artifactId>opentelemetry-exporter-otlp</artifactId>
+    <version>${otel.version}</version>
+  </dependency>
 
-    <!-- OpenTelemetry Exporter OTLP -->
-    <dependency>
-        <groupId>io.opentelemetry</groupId>
-        <artifactId>opentelemetry-exporter-otlp</artifactId>
-        <version>${otel.version}</version>
-    </dependency>
+  <!-- Testes -->
+  <dependency>
+    <groupId>org.awaitility</groupId>
+    <artifactId>awaitility</artifactId>
+    <version>4.2.0</version>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
+    <groupId>com.squareup.okhttp3</groupId>
+    <artifactId>mockwebserver</artifactId>
+    <version>4.10.0</version>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifactId>junit-jupiter</artifactId>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.mockito</groupId>
+    <artifactId>mockito-core</artifactId>
+    <scope>test</scope>
+  </dependency>
+  <dependency>
+    <groupId>org.mockito</groupId>
+    <artifactId>mockito-junit-jupiter</artifactId>
+    <scope>test</scope>
+  </dependency>
 </dependencies>

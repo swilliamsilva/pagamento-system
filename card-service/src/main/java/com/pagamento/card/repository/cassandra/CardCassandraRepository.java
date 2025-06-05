@@ -1,7 +1,7 @@
 package com.pagamento.card.repository.cassandra;
 
 import com.pagamento.card.model.CardTransaction;
-import org.springframework.data.cassandra.repository.CassandraRepository;
+import com.pagamento.card.repository.cassandra.CassandraRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

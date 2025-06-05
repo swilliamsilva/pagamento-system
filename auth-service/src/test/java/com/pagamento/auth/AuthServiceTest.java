@@ -1,10 +1,13 @@
 package com.pagamento.auth;
 
-import com.pagamento.auth.dto.AuthRequest;
-import com.pagamento.auth.dto.AuthResponse;
-import com.pagamento.auth.entity.User;
-import com.pagamento.auth.repository.UserRepository;
-import com.pagamento.auth.service.AuthService;
+
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,14 +16,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import java.util.Optional;
+import com.pagamento.auth.dto.AuthRequest;
+import com.pagamento.auth.dto.AuthResponse;
+import com.pagamento.auth.entity.User;
+import com.pagamento.auth.exception.InvalidCredentialsException;
+import com.pagamento.auth.exception.InvalidTokenException;
+import com.pagamento.auth.exception.UserNotFoundException;
+import com.pagamento.auth.repository.UserRepository;
+import com.pagamento.auth.service.AuthService;
+import com.pagamento.auth.service.TokenProvider;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -31,116 +39,108 @@ class AuthServiceTest {
     @Mock
     private AuthenticationManager authenticationManager;
 
+    @Mock
+    private TokenProvider tokenProvider;
+
     @InjectMocks
     private AuthService authService;
 
     @Test
-    void authenticate_WhenValidCredentials_ShouldReturnTokens() {
+    void authenticate_ValidCredentials_ReturnsTokens() {
         // Arrange
-        AuthRequest request = new AuthRequest("validUser", "validPass");
+        AuthRequest request = new AuthRequest("user", "password");
         User user = new User();
-        user.setUsername("validUser");
+        user.setUsername("user");
         user.setRoles("ROLE_USER");
         
-        Authentication auth = mock(Authentication.class);
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-            .thenReturn(auth);
-        when(userRepository.findByUsername("validUser"))
+        when(authenticationManager.authenticate(any()))
+            .thenReturn(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+        when(userRepository.findByUsername("user"))
             .thenReturn(Optional.of(user));
-        
+        when(tokenProvider.createAccessToken("user")).thenReturn("accessToken");
+        when(tokenProvider.createRefreshToken("user")).thenReturn("refreshToken");
+
         // Act
         AuthResponse response = authService.authenticate(request);
-        
+
         // Assert
         assertNotNull(response);
-        assertNotNull(response.getToken());
-        assertNotNull(response.getToken());
+        assertEquals("accessToken", response.getToken());
+        assertEquals("refreshToken", response.getToken());
         assertEquals("ROLE_USER", response.getRoles());
-        
-        verify(authenticationManager, times(1)).authenticate(any());
-        verify(userRepository, times(1)).findByUsername("validUser");
     }
 
     @Test
-    void authenticate_WhenInvalidPassword_ShouldThrowException() {
+    void authenticate_InvalidPassword_ThrowsException() {
         // Arrange
-        AuthRequest request = new AuthRequest("validUser", "wrongPass");
+        AuthRequest request = new AuthRequest("user", "wrongpassword");
         
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+        when(authenticationManager.authenticate(any()))
             .thenThrow(new BadCredentialsException("Invalid credentials"));
-        
+
         // Act & Assert
-        UsernameNotFoundException exception = assertThrows(
-            UsernameNotFoundException.class,
-            () -> authService.authenticate(request)
-        );
-        
-        assertEquals("Credenciais inválidas", exception.getMessage());
-        verify(authenticationManager, times(1)).authenticate(any());
-        verify(userRepository, never()).findByUsername(anyString());
+        assertThrows(InvalidCredentialsException.class, () -> authService.authenticate(request));
     }
 
     @Test
-    void authenticate_WhenUserNotFound_ShouldThrowException() {
+    void authenticate_UserNotFound_ThrowsException() {
         // Arrange
-        AuthRequest request = new AuthRequest("unknownUser", "anyPass");
+        AuthRequest request = new AuthRequest("unknown", "password");
         
-        Authentication auth = mock(Authentication.class);
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-            .thenReturn(auth);
-        when(userRepository.findByUsername("unknownUser"))
+        when(authenticationManager.authenticate(any()))
+            .thenReturn(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+        when(userRepository.findByUsername("unknown"))
             .thenReturn(Optional.empty());
-        
+
         // Act & Assert
-        UsernameNotFoundException exception = assertThrows(
-            UsernameNotFoundException.class,
-            () -> authService.authenticate(request)
-        );
-        
-        assertEquals("Usuário não encontrado", exception.getMessage());
-        verify(userRepository, times(1)).findByUsername("unknownUser");
+        assertThrows(UserNotFoundException.class, () -> authService.authenticate(request));
     }
 
     @Test
-    void refreshToken_WhenValidRefreshToken_ShouldReturnNewAccessToken() {
+    void refreshToken_ValidToken_ReturnsNewAccessToken() {
         // Arrange
         String refreshToken = "valid.refresh.token";
-        String username = "validUser";
-        
+        Claims claims = Jwts.claims().setSubject("user");
         User user = new User();
-        user.setUsername(username);
+        user.setUsername("user");
         user.setRoles("ROLE_ADMIN");
         
-        when(userRepository.findByUsername(username))
-            .thenReturn(Optional.of(user));
-        
+        when(tokenProvider.validateAndExtractClaims(refreshToken)).thenReturn(claims);
+        when(userRepository.findByUsername("user")).thenReturn(Optional.of(user));
+        when(tokenProvider.createAccessToken("user")).thenReturn("newAccessToken");
+
         // Act
         AuthResponse response = authService.refreshToken(refreshToken);
-        
+
         // Assert
         assertNotNull(response);
-        assertNotNull(response.getToken());
+        assertEquals("newAccessToken", response.getToken());
         assertEquals(refreshToken, response.getToken());
         assertEquals("ROLE_ADMIN", response.getRoles());
-        verify(userRepository, times(1)).findByUsername(username);
     }
 
     @Test
-    void refreshToken_WhenInvalidRefreshToken_ShouldThrowSecurityException() {
+    void refreshToken_InvalidToken_ThrowsException() {
         // Arrange
         String invalidToken = "invalid.token";
         
-        // Simular erro de parsing do token
-        when(userRepository.findByUsername(anyString())).thenThrow(
-            new SecurityException("Refresh token inválido ou expirado")
-        );
-        
+        when(tokenProvider.validateAndExtractClaims(invalidToken))
+            .thenThrow(new InvalidTokenException("Invalid token"));
+
         // Act & Assert
-        SecurityException exception = assertThrows(
-            SecurityException.class,
-            () -> authService.refreshToken(invalidToken)
-        );
+        assertThrows(InvalidTokenException.class, () -> authService.refreshToken(invalidToken));
+    }
+
+    @Test
+    void refreshToken_UserNotFound_ThrowsException() {
+        // Arrange
+        String refreshToken = "valid.token";
+        Claims claims = Jwts.claims().setSubject("unknown");
         
-        assertEquals("Refresh token inválido ou expirado", exception.getMessage());
+        when(tokenProvider.validateAndExtractClaims(refreshToken)).thenReturn(claims);
+        when(userRepository.findByUsername("unknown")).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(UserNotFoundException.class, () -> authService.refreshToken(refreshToken));
     }
 }

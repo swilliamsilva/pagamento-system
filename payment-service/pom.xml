@@ -64,6 +64,39 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+  <groupId>org.junit.jupiter</groupId>
+  <artifactId>junit-jupiter</artifactId>
+  <scope>test</scope>
+</dependency>
+
+<dependency>
+  <groupId>org.mockito</groupId>
+  <artifactId>mockito-core</artifactId>
+  <scope>test</scope>
+</dependency>
+
+<dependency>
+  <groupId>org.mockito</groupId>
+  <artifactId>mockito-junit-jupiter</artifactId>
+  <scope>test</scope>
+</dependency>
+
+<!-- Pact 4.3.6 (Java 8 Compatible) -->
+<dependency>
+  <groupId>au.com.dius.pact.consumer</groupId>
+  <artifactId>junit5</artifactId>
+  <version>4.3.6</version>
+  <scope>test</scope>
+</dependency>
+
+<dependency>
+  <groupId>au.com.dius.pact.consumer</groupId>
+  <artifactId>pact-jvm-consumer-junit</artifactId>
+  <version>3.6.15</version>
+  <scope>test</scope>
+</dependency>
+
     </dependencies>
 
     <build>

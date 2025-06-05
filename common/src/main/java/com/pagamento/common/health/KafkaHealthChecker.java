@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 /**
  * Verifica a saúde da conexão com o Kafka.
@@ -42,7 +43,7 @@ public class KafkaHealthChecker implements DependencyHealthChecker {
             Set<String> topics = topicsResult.names().get(2, TimeUnit.SECONDS);
             
             Duration duration = Duration.between(start, Instant.now());
-            Health.Builder builder = Health.up()
+            Health.Builder builder = ((Object) Health.up())
                 .withDetail("response_time_ms", duration.toMillis())
                 .withDetail("topics_found", topics.size());
             

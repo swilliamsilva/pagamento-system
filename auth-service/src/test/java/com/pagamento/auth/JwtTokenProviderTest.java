@@ -1,14 +1,11 @@
 package com.pagamento.auth;
 
-import com.pagamento.service.JwtTokenProvider;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.Collections;
-import java.util.Date;
 import static org.junit.jupiter.api.Assertions.*;
 
 class JwtTokenProviderTest {
@@ -67,7 +64,11 @@ class JwtTokenProviderTest {
     }
 
     static class TestAuthentication implements Authentication {
-        private final String name;
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private final String name;
         private final java.util.Collection<SimpleGrantedAuthority> authorities;
 
         TestAuthentication(String name, java.util.Collection<SimpleGrantedAuthority> authorities) {

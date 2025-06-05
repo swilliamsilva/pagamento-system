@@ -2,8 +2,11 @@ package com.pagamento.auth.dto;
 
 import javax.validation.constraints.NotBlank;
 
-public class RefreshTokenRequest {
+import lombok.Data;
+import javax.validation.constraints.NotBlank;
 
+@Data
+public class RefreshTokenRequest {
     @NotBlank(message = "Refresh token é obrigatório")
     private String refreshToken;
 

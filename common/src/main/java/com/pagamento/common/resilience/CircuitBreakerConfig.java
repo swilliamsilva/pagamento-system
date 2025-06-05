@@ -8,6 +8,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import java.time.Duration;
 
 @Configuration
@@ -20,25 +21,23 @@ public class CircuitBreakerConfig {
     public CircuitBreakerRegistry circuitBreakerRegistry(MeterRegistry meterRegistry) {
         CircuitBreakerConfig defaultConfig = createDefaultConfig();
         CircuitBreakerRegistry registry = CircuitBreakerRegistry.of(defaultConfig);
-        
-        // Registrar métricas para todos os circuit breakers
+
         registry.getEventPublisher().onEntryAdded(event -> 
             event.getAddedEntry().getEventPublisher().onStateTransition(e -> 
                 meterRegistry.counter("resilience4j.circuitbreaker.state.transitions",
-                    "name", e.getCircuitBreakerName(),
-                    "state", e.getStateTransition().getToState().name())
-                .increment()
+                        "name", e.getCircuitBreakerName(),
+                        "state", e.getStateTransition().getToState().name())
+                    .increment()
             )
         );
-        
+
         return registry;
     }
 
     private CircuitBreakerConfig createDefaultConfig() {
         boolean isProduction = "prod".equalsIgnoreCase(environment);
-        
         return CircuitBreakerConfig.custom()
-            .failureRateThreshold(isProduction ? 40 : 60) 
+            .failureRateThreshold(isProduction ? 40 : 60)
             .slowCallRateThreshold(isProduction ? 30 : 50)
             .slowCallDurationThreshold(Duration.ofMillis(isProduction ? 1000 : 2000))
             .waitDurationInOpenState(Duration.ofSeconds(isProduction ? 60 : 30))
@@ -49,16 +48,11 @@ public class CircuitBreakerConfig {
             .recordExceptions(Exception.class)
             .ignoreExceptions(IllegalArgumentException.class)
             .automaticTransitionFromOpenToHalfOpenEnabled(true)
-            .writableStackTraceEnabled(false) // Melhoria de performance
+            // Removido: .writableStackTraceEnabled(false) - Não disponível na v1.7.1
             .build();
     }
 
-    private static Object custom() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Bean(name = "paymentServiceCircuitBreaker")
+    @Bean(name = "paymentServiceCircuitBreaker")
     public CircuitBreaker paymentServiceCircuitBreaker(CircuitBreakerRegistry registry) {
         return registry.circuitBreaker("paymentService", CircuitBreakerConfig.custom()
             .failureRateThreshold(30)
@@ -66,6 +60,7 @@ public class CircuitBreakerConfig {
             .build());
     }
 
+ 
     @Bean(name = "antiFraudServiceCircuitBreaker")
     public CircuitBreaker antiFraudServiceCircuitBreaker(CircuitBreakerRegistry registry) {
         return registry.circuitBreaker("antiFraudService", CircuitBreakerConfig.custom()

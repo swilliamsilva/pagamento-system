@@ -1,7 +1,9 @@
 package com.pagamento.boleto.controller;
 
+
+
 import com.pagamento.boleto.model.Boleto;
-import com.pagamento.boleto.dto.BoletoResponse;
+import com.pagamento.boleto.model.BoletoResponse;
 import com.pagamento.boleto.service.BoletoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -14,26 +14,37 @@ public class User {
     private String username;
     private String password;
     private String roles;
-	public String getUsername() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	public String getRoles() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	public String getPassword() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	public void setUsername(String string) {
-		// TODO Auto-generated method stub
-		
-	}
-	public void setRoles(String string) {
-		// TODO Auto-generated method stub
-		
-	}
     
-    // Getters e Setters
+    // Getters e Setters corretos
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getRoles() {
+        return roles;
+    }
+
+    public void setRoles(String roles) {
+        this.roles = roles;
+    }
 }

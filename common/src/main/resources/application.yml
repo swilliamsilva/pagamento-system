@@ -3,3 +3,11 @@ spring:
     bootstrap-servers: localhost:9092
     consumer:
       group-id: pagamento-group
+
+  data:
+    cassandra:
+      contact-points: localhost
+      port: 9042
+      keyspace-name: payment_keyspace
+      schema-action: none
+      local-datacenter: datacenter1

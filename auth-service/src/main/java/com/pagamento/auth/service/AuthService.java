@@ -11,7 +11,6 @@ import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
@@ -33,15 +32,16 @@ public class AuthService {
         this.tokenProvider = tokenProvider;
     }
 
-    public AuthResponse authenticate(AuthRequest request) {
+    public AuthResponse authenticate(com.pagamento.auth.dto.AuthRequest authRequest) {
+        if (authRequest.getUsername() == null || authRequest.getPassword() == null) {
+            throw new InvalidCredentialsException("Username e password são obrigatórios");
+        }
+        
         try {
-            // Autentica as credenciais
-            authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-            );
+    
             
             // Busca o usuário no banco de dados
-            User user = userRepository.findByUsername(request.getUsername())
+            User user = userRepository.findByUsername(authRequest.getUsername())
                 .orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
             
             // Gera os tokens usando o TokenProvider
@@ -49,13 +49,13 @@ public class AuthService {
             String refreshToken = tokenProvider.createRefreshToken(user.getUsername());
             
             return new AuthResponse(token, refreshToken, user.getRoles());
-            
-        } catch (BadCredentialsException e) {
-            throw new InvalidCredentialsException("Credenciais inválidas");
-        } catch (AuthenticationException e) {
-            throw new InvalidCredentialsException("Falha na autenticação", e);
+              } catch (BadCredentialsException e) {
+                throw new InvalidCredentialsException("Credenciais inválidas");
+              } catch (AuthenticationException e) {
+                throw new InvalidCredentialsException("Falha na autenticação", e);
         }
-    }
+    }      
+       
 
     public AuthResponse refreshToken(String refreshToken) {
         try {

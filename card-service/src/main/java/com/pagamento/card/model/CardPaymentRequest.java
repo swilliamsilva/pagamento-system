@@ -9,7 +9,7 @@ import javax.validation.constraints.Size;
 
 public class CardPaymentRequest {
     @NotBlank(message = "Número do cartão é obrigatório")
-    @Pattern(regexp = "^\d{16}$", message = "Número do cartão inválido")
+    @Pattern(regexp = "^\\d{16}$", message = "Número do cartão inválido")
     private String cardNumber;
     
     @NotBlank(message = "Titular do cartão é obrigatório")
@@ -17,11 +17,11 @@ public class CardPaymentRequest {
     private String cardHolder;
     
     @NotBlank(message = "Data de expiração é obrigatória")
-    @Pattern(regexp = "^(0[1-9]|1[0-2])/\d{2}$", message = "Formato inválido (MM/AA)")
+    @Pattern(regexp = "^(0[1-9]|1[0-2])/\\d{2}$", message = "Formato inválido (MM/AA)")
     private String expiryDate; // MM/YY
     
     @NotBlank(message = "CVV é obrigatório")
-    @Pattern(regexp = "^\d{3,4}$", message = "CVV inválido (3 ou 4 dígitos)")
+    @Pattern(regexp = "^\\d{3,4}$", message = "CVV inválido (3 ou 4 dígitos)")
     private String cvv;
     
     @NotNull(message = "Valor é obrigatório")

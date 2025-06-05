@@ -38,7 +38,7 @@ public class ExternalServiceHealthChecker implements DependencyHealthChecker {
             ResponseEntity<String> response = restTemplate.getForEntity(healthUrl, String.class);
             Duration duration = Duration.between(start, Instant.now());
             
-            Health.Builder builder = Health.up()
+            Health.Builder builder = ((Object) Health.up())
                 .withDetail("response_time_ms", duration.toMillis())
                 .withDetail("status_code", response.getStatusCodeValue());
             

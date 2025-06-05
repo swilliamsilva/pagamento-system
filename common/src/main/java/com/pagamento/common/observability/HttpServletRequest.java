@@ -7,7 +7,7 @@ public class HttpServletRequest {
 		return null;
 	}
 
-	public String getHeader(String correlationId) {
+	public String getHeader1(String correlationId) {
 		// TODO Auto-generated method stub
 		return null;
 	}

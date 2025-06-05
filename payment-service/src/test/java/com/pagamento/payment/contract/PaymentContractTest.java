@@ -1,66 +1,70 @@
 package com.pagamento.payment.contract;
 
-import au.com.dius.pact.consumer.MockServer;
+import au.com.dius.pact.consumer.PactProviderRuleMk2;
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
-import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
-import au.com.dius.pact.consumer.junit5.PactTestFor;
-import au.com.dius.pact.core.model.RequestResponsePact;
-import au.com.dius.pact.core.model.annotations.Pact;
-import com.pagamento.common.dto.PaymentDTO;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import au.com.dius.pact.consumer.PactVerification;
+import au.com.dius.pact.consumer.Pact;
+import au.com.dius.pact.model.RequestResponsePact;
+import au.com.dius.pact.consumer.junit.PactRunner;
+import au.com.dius.pact.consumer.junit.PactVerificationInvocationContextProvider;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.json.JSONObject;
 
-@ExtendWith(PactConsumerTestExt.class)
-@PactTestFor(providerName = "paymentProvider", port = "8080")
-class PaymentContractTest {
+import static org.junit.Assert.*;
 
-    @Pact(provider = "paymentProvider", consumer = "paymentConsumer")
-    public RequestResponsePact createPaymentContract(PactDslWithProvider builder) {
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Content-Type", "application/json");
-        
+@RunWith(PactRunner.class)
+@Provider("paymentProvider")
+@Consumer("paymentConsumer")
+public class PaymentContractTest {
+
+    @Rule
+    public PactProviderRuleMk2 mockProvider =
+            new PactProviderRuleMk2("paymentProvider", "localhost", 8080, this);
+
+    private final String requestJson = new JSONObject()
+            .put("amount", 100.00)
+            .put("currency", "BRL")
+            .toString();
+
+    @Pact(consumer = "paymentConsumer")
+    public RequestResponsePact createPact(PactDslWithProvider builder) {
         return builder
             .given("payment processing service is available")
             .uponReceiving("a request to process payment")
                 .path("/api/v1/payments")
                 .method("POST")
-                .body("{"amount":100.00,"currency":"BRL"}")
+                .headers("Content-Type", "application/json")
+                .body(requestJson)
             .willRespondWith()
                 .status(201)
-                .headers(headers)
-                .body("{"transactionId":"txn_123","status":"COMPLETED"}")
+                .headers("Content-Type", "application/json")
+                .body(new JSONObject()
+                        .put("transactionId", "txn_123")
+                        .put("status", "COMPLETED")
+                        .toString())
             .toPact();
     }
 
     @Test
-    @PactTestFor(pactMethod = "createPaymentContract")
-    void testCreatePayment(MockServer mockServer) {
-        // Setup
-        String url = mockServer.getUrl() + "/api/v1/payments";
-        PaymentDTO request = new PaymentDTO();
-        request.setAmount(new BigDecimal("100.00"));
-        request.setCurrency("BRL");
-        
+    @PactVerification
+    public void testCreatePayment() {
+        String url = mockProvider.getUrl() + "/api/v1/payments";
+
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json");
-        HttpEntity<PaymentDTO> entity = new HttpEntity<>(request, headers);
-        
-        // Execute
-        ResponseEntity<PaymentDTO> response = new RestTemplate().exchange(
-            url, HttpMethod.POST, entity, PaymentDTO.class);
-        
-        // Verify
-        assertEquals(201, response.getStatusCodeValue());
-        assertEquals("txn_123", response.getBody().getTransactionId());
-        assertEquals("COMPLETED", response.getBody().getStatus());
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
+
+        ResponseEntity<String> response = new RestTemplate().exchange(
+            url, HttpMethod.POST, entity, String.class);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+
+        JSONObject responseJson = new JSONObject(response.getBody());
+        assertEquals("txn_123", responseJson.getString("transactionId"));
+        assertEquals("COMPLETED", responseJson.getString("status"));
     }
 }

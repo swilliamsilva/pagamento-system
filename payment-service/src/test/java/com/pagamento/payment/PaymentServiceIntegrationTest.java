@@ -1,17 +1,6 @@
 package com.pagamento.payment;
 
-import com.pagamento.common.dto.PaymentDTO;
-import com.pagamento.common.enums.PaymentStatus;
-import com.pagamento.common.exception.PaymentProcessingException;
-import com.pagamento.common.messaging.KafkaMessageProducer;
-import com.pagamento.common.observability.ObservabilityUtils;
-import com.pagamento.entity.Payment;
-import com.pagamento.entity.PaymentMethod;
-import com.pagamento.entity.User;
-import com.pagamento.repository.PaymentRepository;
-import com.pagamento.service.AntiFraudService;
-import com.pagamento.service.PaymentGatewayService;
-import com.pagamento.service.PaymentService;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mockito;
@@ -20,6 +9,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.pagamento.payment.model.Payment;
+import com.pagamento.payment.repository.PaymentRepository;
+import com.pagamento.payment.service.PaymentService;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;

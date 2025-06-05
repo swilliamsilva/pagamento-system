@@ -37,7 +37,7 @@ public class KafkaProducerConfig {
     @Bean
     public KafkaTemplate<String, Object> kafkaTemplate() {
         KafkaTemplate<String, Object> template = new KafkaTemplate<>(producerFactory());
-        template.setObservationEnabled(true);  // Habilita observabilidade
+        ((Object) template).setObservationEnabled(true);  // Habilita observabilidade
         return template;
     }
 }

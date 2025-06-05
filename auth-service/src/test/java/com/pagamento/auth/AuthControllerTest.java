@@ -1,9 +1,5 @@
 package com.pagamento.auth;
 
-
-import com.pagamento.common.request.AuthRequest;
-import com.pagamento.common.response.AuthResponse;
-import com.pagamento.service.AuthService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +8,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pagamento.auth.dto.AuthRequest;
+import com.pagamento.auth.dto.AuthResponse;
+import com.pagamento.auth.service.AuthService;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
