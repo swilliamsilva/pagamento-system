@@ -10,7 +10,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PaymentMongoRepository extends MongoRepository<PaymentDocument, String> {
+public interface PaymentMongoRepository extends DocumentInterface<PaymentDocument, String> {
     List<PaymentDocument> findByStatus(String status);
 }
 

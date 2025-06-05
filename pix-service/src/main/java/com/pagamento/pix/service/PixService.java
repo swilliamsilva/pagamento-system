@@ -60,13 +60,13 @@ public class PixService {
         if (chave == null || chave.trim().isEmpty()) return false;
         
         // CPF (11 dígitos)
-        if (chave.matches("^\d{11}$")) return true;
+        if (chave.matches("^\\d{11}$")) return true;
         
         // Email
         if (chave.contains("@") && chave.contains(".")) return true;
         
         // Telefone (com DDD)
-        if (chave.matches("^\+?\d{10,13}$")) return true;
+        if (chave.matches("^\\+?\\d{10,13}$")) return true;
         
         // Chave aleatória (UUID)
         if (chave.matches("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")) return true;
