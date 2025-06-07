@@ -2,42 +2,86 @@ package com.pagamento.common.health;
 
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.Health.Builder;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 /**
  * ========================================================
  * UTILITÁRIO DE STATUS DE SAÚDE
- *
+ * 
  * @tag Health Utilities
  * @summary Helper para construção de respostas de health check
+ * @author William Silva
+ * @contact williamsilva.codigo@gmail.com
+ * @website simuleagora.com
+ * ========================================================
  */
+@Tag(name = "Health Check Utilities", description = "Fornece métodos para construção de respostas de verificação de saúde")
+@Schema(description = "Classe utilitária para construção de status de saúde")
 public class HealthStatus {
 
     /**
-     * @operation up
-     * @summary Cria status UP
+     * Cria status UP
+     * @return Health.Builder configurado com status UP
      */
+    @Operation(
+        summary = "Criar status UP",
+        description = "Gera um builder pré-configurado com status UP",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Builder criado com sucesso",
+                content = @Content(schema = @Schema(implementation = Health.class))
+            )
+        }
+    )
     public static Builder up() {
         return Health.up();
     }
 
     /**
-     * @operation down
-     * @summary Cria status DOWN
+     * Cria status DOWN
+     * @return Health.Builder configurado com status DOWN
      */
+    @Operation(
+        summary = "Criar status DOWN",
+        description = "Gera um builder pré-configurado com status DOWN",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Builder criado com sucesso",
+                content = @Content(schema = @Schema(implementation = Health.class))
+            )
+        }
+    )
     public static Builder down() {
         return Health.down();
     }
 
     /**
-     * @operation customStatus
-     * @param status Nome do status customizado (ex: "WARNING", "TIMEOUT")
-     * @summary Cria status personalizado via String
+     * Cria status personalizado
+     * @param status Nome do status customizado
+     * @return Health.Builder configurado com status personalizado
      */
+    @Operation(
+        summary = "Criar status customizado",
+        description = "Permite definir um status personalizado para o health check",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "Builder criado com sucesso",
+                content = @Content(schema = @Schema(implementation = Health.class))
+            )
+        }
+    )
+    @Schema(description = "Status customizado (ex: WARNING, MAINTENANCE)", example = "DEGRADED")
     public static Builder status(String status) {
         return Health.status(status);
     }
 }
-
 /**
  * ========================================================
  * FLUXO DE OPERAÇÃO - HEALTH STATUS HELPER
