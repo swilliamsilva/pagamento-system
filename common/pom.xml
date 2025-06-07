@@ -124,7 +124,7 @@
         <dependency>
            <groupId>org.hibernate.validator</groupId>
            <artifactId>hibernate-validator</artifactId>
-           <version>6.2.5.Final</version>
+           <version>6.2.0.Final</version>
         </dependency>
 
         <dependency>
@@ -136,7 +136,7 @@
         <dependency>
            <groupId>org.hibernate.validator</groupId>
            <artifactId>hibernate-validator</artifactId>
-           <version>6.2.5.Final</version>
+           <version>6.2.0.Final</version>
         </dependency>
 
         <dependency>
@@ -388,7 +388,7 @@
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>6.0.21.Final</version>
+            <version>6.2.0.Final</version>
         </dependency>
                 
 <!-- Spring Boot Starter Actuator -->
