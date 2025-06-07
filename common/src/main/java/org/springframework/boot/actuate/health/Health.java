@@ -38,7 +38,7 @@ public class Health {
 		return null;
 	}
 
-	public static Object status(String string) {
+	public static Builder status(String string) {
 		// TODO Auto-generated method stub
 		return null;
 	}

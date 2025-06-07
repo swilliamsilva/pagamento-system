@@ -1,116 +1,115 @@
 package com.pagamento.common.health;
 
+import com.pagamento.common.enums.CustomHttpStatus;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 import java.time.Instant;
 
 /**
- * Health Checker para serviços externos que implementa HealthIndicator do Spring Boot Actuator.
- * 
- * @author William Silva - williamsilva.codigo@gmail.com
- * @version 1.0
- * @see HealthIndicator
+ * ========================================================
+ * HEALTH CHECK DE SERVIÇOS EXTERNOS
+ *
+ * Monitora a saúde de APIs externas com métricas detalhadas
+ *
+ * @tag Health Check
+ * @operationId externalServiceHealth
+ * @summary Monitoramento de APIs externas
+ * @description Verifica disponibilidade e performance de serviços integrados
  */
 @Component("externalServiceHealthIndicator")
 public class ExternalServiceHealthChecker implements HealthIndicator {
 
     private final RestTemplate restTemplate;
-    
-    @Value("${external.service.health.url:https://api.bancoexterno.com/health}")
+
+    @Value("${external.service.health.url}")
     private String healthUrl;
-    
-    @Value("${external.service.name:BancoExternoAPI}")
+
+    @Value("${external.service.name}")
     private String serviceName;
 
-    /**
-     * Construtor para injeção de dependência do RestTemplate
-     * 
-     * @param restTemplate Client HTTP para chamadas REST
-     */
     public ExternalServiceHealthChecker(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
-    /**
-     * Implementação do health check para serviços externos
-     * 
-     * @return Health objeto contendo o status do serviço monitorado
-     */
     @Override
     public Health health() {
         Instant start = Instant.now();
         try {
-            ResponseEntity<?> response = restTemplate.getForEntity(healthUrl, String.class);
-            long responseTime = Duration.between(start, Instant.now()).toMillis();
-            HttpStatus statusCode = response.getStatusCode();
-
-            Health.Builder builder = statusCode.is2xxSuccessful() ? Health.up() : Health.down();
-            
-            return builder
-                .withDetail("service", serviceName)
-                .withDetail("status", statusCode.value())
-                .withDetail("response_time_ms", responseTime)
-                .build();
-                
+            ResponseEntity<String> response = restTemplate.getForEntity(healthUrl, String.class);
+            Duration responseTime = Duration.between(start, Instant.now());
+            return createHealthResponse(response.getStatusCode(), responseTime);
         } catch (Exception ex) {
-            long responseTime = Duration.between(start, Instant.now()).toMillis();
-            return Health.down()
-                .withDetail("service", serviceName)
-                .withDetail("exception", ex.getClass().getSimpleName())
-                .withDetail("message", ex.getMessage())
-                .withDetail("response_time_ms", responseTime)
-                .build();
+            return createErrorResponse(ex, Duration.between(start, Instant.now()));
         }
+    }
+
+    private Health createHealthResponse(HttpStatus status, Duration responseTime) {
+        boolean isHealthy = status.is2xxSuccessful();
+        Health.Builder builder = isHealthy ? Health.up() : Health.down();
+
+        return builder
+            .withDetail("service", serviceName)
+            .withDetail("status", CustomHttpStatus.fromCode(status.value()).toString())
+            .withDetail("responseTime", responseTime.toMillis() + "ms")
+            .build();
+    }
+
+    private Health createErrorResponse(Exception ex, Duration responseTime) {
+        return Health.down()
+            .withDetail("service", serviceName)
+            .withDetail("error", ex.getClass().getSimpleName())
+            .withDetail("message", ex.getMessage())
+            .withDetail("responseTime", responseTime.toMillis() + "ms")
+            .build();
     }
 }
 
-/*
- * Fluxo de Operação (Passo a Passo)
-1. Entrada
-    Trigger: Chamada ao endpoint de health check do Spring Boot Actuator
-    Parâmetros Configuráveis:
-        external.service.health.url: URL do endpoint de health check do
-         serviço externo
-        external.service.name: Nome do serviço sendo monitorado
 
-2. Processamento
-    Registra o tempo inicial (Instant.now())
-    Faz uma requisição GET para o endpoint de health check do
-     serviço externo
-     Calcula o tempo de resposta (Duration.between)
-     Verifica o status code da resposta:
-
-        2xx: Considera o serviço UP
-        Outros: Considera o serviço DOWN
-
-    Em caso de exceção:
-
-        Captura detalhes da exceção
-        Considera o serviço DOWN
-
-3. Saída
-
-    Formato: Objeto Health do Spring Boot Actuator
-    Detalhes Incluídos:
-        Status (UP/DOWN)
-        Nome do serviço
-        Status HTTP (quando disponível)
-        Tempo de resposta em ms
-        Detalhes de erro (quando aplicável)
-
-Relacionamentos com outras Classes
-Classe	Tipo de Relação	Descrição
-RestTemplate	Dependência	Cliente HTTP para fazer chamadas ao serviço externo
-HealthIndicator	Implementação	Interface do Spring Boot Actuator para health checks
-Health	Retorno	Classe que representa o resultado do health check
-HttpStatus	Utilização	Enum com códigos de status HTTP
+/**
+ * ========================================================
+ * FLUXO DE OPERAÇÃO - HEALTH CHECK DE SERVIÇOS EXTERNOS
+ * ========================================================
  * 
- * **/
+ * 1. ENTRADA:
+ *    - Chamada automática pelo Spring Boot Actuator (/actuator/health)
+ *    - Configurações via application.properties:
+ *      * external.service.health.url: URL do endpoint de health check
+ *      * external.service.name: Nome amigável do serviço
+ * 
+ * 2. PROCESSAMENTO:
+ *    a) Registra timestamp inicial
+ *    b) Executa chamada HTTP GET para o endpoint configurado
+ *    c) Calcula tempo de resposta
+ *    d) Classifica o status:
+ *       - UP para respostas 2xx
+ *       - DOWN para outros status codes ou erros
+ * 
+ * 3. SAÍDA:
+ *    - Objeto Health contendo:
+ *      * Status (UP/DOWN)
+ *      * Detalhes do serviço monitorado
+ *      * Status code HTTP (quando aplicável)
+ *      * Tempo de resposta
+ *      * Detalhes de erro (quando ocorre exceção)
+ * 
+ * ========================================================
+ * RELACIONAMENTOS COM OUTRAS CLASSES
+ * ========================================================
+ * 
+ * +---------------------+-------------------+-----------------------------------+
+ * | Classe              | Tipo de Relação   | Descrição                         |
+ * +---------------------+-------------------+-----------------------------------+
+ * | HealthIndicator     | Implementação     | Interface contrato do Spring      |
+ * | RestTemplate        | Dependência       | Cliente HTTP para chamadas REST   |
+ * | Health              | Retorno           | Objeto de resposta do Actuator    |
+ * | HttpStatus          | Utilização        | Enum de status HTTP               |
+ * | Duration/Instant    | Utilização        | Cálculo de tempo de resposta      |
+ * +---------------------+-------------------+-----------------------------------+
  */

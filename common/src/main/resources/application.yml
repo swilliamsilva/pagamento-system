@@ -38,3 +38,12 @@ spring:
         url: /api-docs/external-health.yaml
       - name: Generated API
         url: /v3/api-docs
+        
+        # Configurações do health check
+external.service.health.url=https://api.externa.com/health
+external.service.name=ServiçoExterno
+
+# Health Check Config
+external.service.health.url=https://api.externa.com/health
+external.service.name=PaymentGateway
+management.endpoint.health.show-details=always

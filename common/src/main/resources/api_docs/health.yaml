@@ -1,0 +1,13 @@
+{
+  "status": "UP",
+  "components": {
+    "externalServiceHealthIndicator": {
+      "status": "UP",
+      "details": {
+        "service": "ServiçoExterno",
+        "statusCode": 200,
+        "responseTime": "125ms"
+      }
+    }
+  }
+}

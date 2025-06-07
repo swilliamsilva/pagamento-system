@@ -39,7 +39,12 @@ import org.springframework.context.annotation.Configuration;
  * - SwaggerUI (interface interativa)
  * - Controladores com anotações @Operation
  */
-@Configuration
+//@Configuration
+/**
+ * Configuration is not an annotation type
+ * Erro - Não consegue aceitar o @Configuration
+ * 
+ * */
 public class OpenApiConfig {
 
     /**
@@ -60,7 +65,15 @@ public class OpenApiConfig {
         return GroupedOpenApi.builder()
                 .group("health-checks")
                 .pathsToMatch("/actuator/health/**")
-                .addOpenApiCustomizer(openApi -> {
+                .addOpenApiCustomiser(openApi -> {
+                	
+                	/** erro Multiple markers at this line
+	- Syntax error, insert "}" to complete Block
+	- The method addOpenApiCustomizer((<no type> openApi) -> {}) is undefined for the type 
+	 GroupedOpenApi.Builder
+	- Syntax error, insert ")" to complete Expression
+	- Syntax error, insert "}" to complete MethodBody
+	- Syntax error, insert ";" to complete BlockStatements */
                     openApi.getInfo().setTitle("API de Health Checks");
                     openApi.getInfo().setDescription(
                         "Monitoramento de status de serviços externos\n" +
