@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 import static io.opentelemetry.semconv.ResourceAttributes.SERVICE_NAME;
 
-@Configuration
+
 public class TracingConfig {
 
     @Value("${spring.application.name:payment-service}")
@@ -69,13 +69,20 @@ public class TracingConfig {
         OtelCurrentTraceContext currentTraceContext = new OtelCurrentTraceContext();
 
         return new OtelTracer(
+        		/*
+        		 * The constructor OtelTracer(OtelCurrentTraceContext, Slf4JEventListener, OtelTracer.EventPublisher, OtelBaggageManager, Tracer, 
+ OtelHttpClientHandler, OtelHttpServerHandler, OtelPropagator, OtelCurrentTraceContext) is undefined
+        		 * **/
+        		
+        		
             currentTraceContext,
             new Slf4JEventListener(),
+            
             e -> {}, // No-op event listener
             new OtelBaggageManager(),
             sdk.getTracerProvider().get("io.micrometer.tracing"),
             new OtelHttpClientHandler(),
-            new OtelHttpServerHandler(),
+            new OtelHttpServerHandler(sdk, null, null, null, null),
             new OtelPropagator(),
             currentTraceContext
         );
@@ -83,6 +90,10 @@ public class TracingConfig {
 
     @Bean
     public Propagator propagator() {
-        return new OtelPropagator();
+        return new OtelPropagator(null, null);
+        /*
+         * The constructor OtelPropagator() is undefined
+         * **/
+        
     }
 }

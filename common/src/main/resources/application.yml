@@ -3,6 +3,9 @@ spring:
     bootstrap-servers: localhost:9092
     consumer:
       group-id: pagamento-group
+      auto-offset-reset: earliest
+      properties:
+        spring.json.trusted.packages: "*"
 
   data:
     cassandra:
@@ -11,3 +14,27 @@ spring:
       keyspace-name: payment_keyspace
       schema-action: none
       local-datacenter: datacenter1
+
+  springdoc:
+    swagger-ui:
+      enabled: true
+      path: /swagger-ui.html
+      urls:
+        - name: Health Check API
+          url: /v3/api-docs/health-checks
+        - name: Main API
+          url: /v3/api-docs
+      tags-sorter: alpha
+      operations-sorter: alpha
+    api-docs:
+      path: /v3/api-docs
+    default-consumes-media-type: application/json
+    default-produces-media-type: application/json
+    
+    springdoc:
+  swagger-ui:
+    urls:
+      - name: External Health API
+        url: /api-docs/external-health.yaml
+      - name: Generated API
+        url: /v3/api-docs

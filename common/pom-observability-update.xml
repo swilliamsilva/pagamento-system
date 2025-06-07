@@ -1,151 +1,177 @@
-<properties>
-  <java.version>1.8</java.version>
-  <opentelemetry.version>1.35.0</opentelemetry.version>
-  <micrometer-tracing.version>1.2.0</micrometer-tracing.version>
-  <aspectj.version>1.9.22</aspectj.version>
-</properties>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-<dependencies>
+    <groupId>com.pagamento</groupId>
+    <artifactId>observability-module</artifactId>
+    <version>1.0.0</version>
 
-  <!-- Core Spring Boot -->
-  <dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-web</artifactId>
-  </dependency>
-  <dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-data-mongodb</artifactId>
-  </dependency>
-  <dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-jdbc</artifactId>
-  </dependency>
-  <dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-actuator</artifactId>
-  </dependency>
+    <properties>
+        <java.version>1.8</java.version>
+        <opentelemetry.version>1.21.0</opentelemetry.version>
+        <micrometer-tracing.version>1.1.4</micrometer-tracing.version>
+        <aspectj.version>1.9.22</aspectj.version>
+    </properties>
 
-  <!-- Data Sources -->
-  <dependency>
-    <groupId>com.github.derjust</groupId>
-    <artifactId>spring-data-dynamodb</artifactId>
-    <version>5.1.0</version>
-  </dependency>
-  <dependency>
-    <groupId>org.springframework.vault</groupId>
-    <artifactId>spring-vault-core</artifactId>
-  </dependency>
+    <dependencies>
+           <!-- Documentação OpenApi/Swagger -->
+        <dependency>
+           <groupId>org.springdoc</groupId>
+           <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+           <version>2.5.0</version>
+        </dependency>
+    
+        <!-- Spring Boot Starters -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
 
-  <!-- Observability & Tracing -->
-  <dependency>
-    <groupId>io.micrometer</groupId>
-    <artifactId>micrometer-core</artifactId>
-  </dependency>
-  <dependency>
-    <groupId>io.micrometer</groupId>
-    <artifactId>micrometer-tracing</artifactId>
-    <version>${micrometer-tracing.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>io.micrometer</groupId>
-    <artifactId>micrometer-tracing-bridge-otel</artifactId>
-    <version>${micrometer-tracing.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>io.micrometer</groupId>
-    <artifactId>micrometer-registry-prometheus</artifactId>
-    <version>1.12.3</version>
-  </dependency>
-  <dependency>
-    <groupId>io.opentelemetry</groupId>
-    <artifactId>opentelemetry-api</artifactId>
-    <version>${opentelemetry.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>io.opentelemetry</groupId>
-    <artifactId>opentelemetry-sdk</artifactId>
-    <version>${opentelemetry.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>io.opentelemetry</groupId>
-    <artifactId>opentelemetry-exporter-otlp</artifactId>
-    <version>${opentelemetry.version}</version>
-  </dependency>
+        <!-- External Data Sources -->
+        <dependency>
+            <groupId>com.github.derjust</groupId>
+            <artifactId>spring-data-dynamodb</artifactId>
+            <version>5.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.vault</groupId>
+            <artifactId>spring-vault-core</artifactId>
+        </dependency>
 
-  <!-- OpenCensus (legacy or hybrid tracing) -->
-  <dependency>
-    <groupId>io.opencensus</groupId>
-    <artifactId>opencensus-api</artifactId>
-    <version>0.31.1</version>
-  </dependency>
-  <dependency>
-    <groupId>io.opencensus</groupId>
-    <artifactId>opencensus-impl</artifactId>
-    <version>0.31.1</version>
-  </dependency>
-  <dependency>
-    <groupId>io.opencensus</groupId>
-    <artifactId>opencensus-exporter-trace-logging</artifactId>
-    <version>0.31.1</version>
-  </dependency>
-  <dependency>
-    <groupId>io.opencensus</groupId>
-    <artifactId>opencensus-contrib-http-util</artifactId>
-    <version>0.31.1</version>
-  </dependency>
+        <!-- Observability / Tracing -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing</artifactId>
+            <version>${micrometer-tracing.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-otel</artifactId>
+            <version>${micrometer-tracing.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>1.12.3</version>
+        </dependency>
 
-  <!-- Logging & Filters -->
-  <dependency>
-    <groupId>org.slf4j</groupId>
-    <artifactId>slf4j-api</artifactId>
-    <version>1.7.36</version>
-  </dependency>
-  <dependency>
-    <groupId>javax.servlet</groupId>
-    <artifactId>javax.servlet-api</artifactId>
-    <version>4.0.1</version>
-    <scope>provided</scope>
-  </dependency>
+        <!-- OpenTelemetry (limitado para compatibilidade Java 8) -->
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-api</artifactId>
+            <version>${opentelemetry.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk</artifactId>
+            <version>${opentelemetry.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-otlp</artifactId>
+            <version>${opentelemetry.version}</version>
+        </dependency>
 
-  <!-- AspectJ -->
-  <dependency>
-    <groupId>org.aspectj</groupId>
-    <artifactId>aspectjweaver</artifactId>
-    <version>${aspectj.version}</version>
-  </dependency>
+        <!-- Logging, Servlet, AspectJ -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.36</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>4.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>${aspectj.version}</version>
+        </dependency>
 
-  <!-- Testes -->
-  <dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-test</artifactId>
-    <scope>test</scope>
-  </dependency>
-  <dependency>
-    <groupId>org.awaitility</groupId>
-    <artifactId>awaitility</artifactId>
-    <version>4.2.0</version>
-    <scope>test</scope>
-  </dependency>
-  <dependency>
-    <groupId>com.squareup.okhttp3</groupId>
-    <artifactId>mockwebserver</artifactId>
-    <version>4.10.0</version>
-    <scope>test</scope>
-  </dependency>
-  <dependency>
-    <groupId>org.junit.jupiter</groupId>
-    <artifactId>junit-jupiter</artifactId>
-    <scope>test</scope>
-  </dependency>
-  <dependency>
-    <groupId>org.mockito</groupId>
-    <artifactId>mockito-core</artifactId>
-    <scope>test</scope>
-  </dependency>
-  <dependency>
-    <groupId>org.mockito</groupId>
-    <artifactId>mockito-junit-jupiter</artifactId>
-    <scope>test</scope>
-  </dependency>
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>4.2.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver</artifactId>
+            <version>4.10.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+    <groupId>javax.validation</groupId>
+    <artifactId>validation-api</artifactId>
+    <version>2.0.1.Final</version>
+</dependency>
 
-</dependencies>
+<dependency>
+    <groupId>org.hibernate.validator</groupId>
+    <artifactId>hibernate-validator</artifactId>
+    <version>6.2.5.Final</version>
+</dependency>
+
+<dependency>
+    <groupId>org.glassfish</groupId>
+    <artifactId>javax.el</artifactId>
+    <version>3.0.0</version>
+</dependency>
+        
+        
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,0 +1,100 @@
+# ========================================================
+# DOCUMENTAÇÃO OPENAPI - HEALTH CHECK DE SERVIÇOS EXTERNOS
+# 
+# Especificação para o endpoint que monitora a saúde de APIs externas
+# Classe: ExternalServiceHealthChecker
+# Módulo: pagamento-common
+# Autor: William Silva
+# Contato: williamsilva.codigo@gmail.com
+# ========================================================
+
+openapi: 3.0.3
+info:
+  title: Monitoramento de Serviços Externos
+  description: |
+    API que expõe o status de saúde de serviços externos integrados,
+    implementada pela classe ExternalServiceHealthChecker.
+    Retorna métricas de disponibilidade e tempo de resposta.
+  version: 1.0.0
+  contact:
+    name: Suporte Técnico
+    email: suporte@simuleagora.com
+
+paths:
+  /actuator/health/{service}:
+    get:
+      tags:
+        - Health Check
+      summary: Status do serviço externo
+      description: |
+        Verifica a disponibilidade do serviço externo configurado.
+        Implementado pela classe ExternalServiceHealthChecker.
+      parameters:
+        - $ref: '#/components/parameters/serviceName'
+      responses:
+        '200':
+          description: Health check completo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+        '503':
+          description: Serviço indisponível
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthError'
+
+components:
+  schemas:
+    Health:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [UP, DOWN]
+          example: UP
+        details:
+          $ref: '#/components/schemas/HealthDetails'
+    
+    HealthDetails:
+      type: object
+      properties:
+        service:
+          type: string
+          example: BancoExternoAPI
+          description: Nome do serviço monitorado
+        status:
+          type: integer
+          example: 200
+          description: Código HTTP retornado
+        response_time_ms:
+          type: integer
+          example: 150
+          description: Tempo de resposta em milissegundos
+    
+    HealthError:
+      allOf:
+        - $ref: '#/components/schemas/Health'
+        - type: object
+          properties:
+            error:
+              type: string
+              example: HTTP 503
+            exception:
+              type: string
+              example: ConnectException
+            message:
+              type: string
+              example: Connection refused
+
+  parameters:
+    serviceName:
+      name: service
+      in: path
+      description: Nome do serviço externo a ser verificado
+      required: true
+      schema:
+        type: string
+        enum: [BancoExternoAPI, OutroServico]
+        default: BancoExternoAPI

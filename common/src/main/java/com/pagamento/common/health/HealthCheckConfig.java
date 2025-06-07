@@ -1,41 +1,58 @@
 package com.pagamento.common.health;
 
 import org.springframework.boot.actuate.autoconfigure.health.HealthEndpointProperties;
+import org.springframework.boot.actuate.autoconfigure.health.HealthProperties.Show;
 import org.springframework.boot.actuate.health.HealthEndpoint;
+import org.springframework.boot.actuate.health.HealthEndpointGroup;
+import org.springframework.boot.actuate.health.HealthEndpointGroups;
+import org.springframework.boot.actuate.health.CompositeHealthContributor;
 import org.springframework.boot.actuate.health.HealthContributor;
 import org.springframework.boot.actuate.health.HealthContributorRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import com.google.common.base.Function;
+
+import io.vavr.collection.Map;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Configuração adicional para health checks.
  * 
  * @apiNote Configura endpoints de health check
  */
-@Configuration
+
 public class HealthCheckConfig {
 
-    /**
-     * Configura endpoint customizado para readiness
-     */
     @Bean
-    public HealthEndpointProperties healthEndpointProperties() {
-        HealthEndpointProperties properties = new HealthEndpointProperties();
-        properties.getGroup().put("readiness", List.of("readinessProbe"));
-        properties.getGroup().put("liveness", List.of("livenessProbe"));
-        return properties;
+    public HealthEndpointGroups healthEndpointGroups() {
+        return HealthEndpointGroups.of(
+            Map.of(
+                "readiness", HealthEndpointGroup.showDetails(Show.ALWAYS),
+                /* The method showDetails(SecurityContext) in the type HealthEndpointGroup is not applicable for the arguments (HealthProperties.Show)*/
+                "liveness", HealthEndpointGroup.showDetails(Show.ALWAYS)
+                /*The method showDetails(SecurityContext) in the type HealthEndpointGroup is not applicable for the arguments (HealthProperties.Show) */
+            ),
+            HealthEndpointGroup.showDetails(Show.ALWAYS)
+            /*The method showDetails(SecurityContext) in the type HealthEndpointGroup is not applicable for the arguments (HealthProperties.Show) */
+        );
     }
 
-    /**
-     * Registra health indicators customizados.
-     */
     @Bean
     public HealthContributorRegistry healthContributorRegistry(
-        List<HealthContributor> contributors,
-        HealthEndpoint healthEndpoint
-    ) {
-        contributors.forEach(healthEndpoint::registerContributor);
-        return healthEndpoint.getContributorRegistry();
+            List<HealthContributor> contributors) {
+        CompositeHealthContributor composite = CompositeHealthContributor.fromMap(
+            contributors.stream()
+                .collect(Collectors.toMap(
+                    c -> c.getClass().getSimpleName(),
+                    Function.identity()
+                    
+                    /*The method identity() is undefined for the type Function */
+                ))
+        );
+        return new AutoConfiguredHealthContributorRegistry();
     }
 }
+

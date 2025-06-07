@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+/*
+ * Configuration is not an annotation type*/
 public class KafkaProducerConfig {
 
     @Value("${spring.kafka.bootstrap-servers}")

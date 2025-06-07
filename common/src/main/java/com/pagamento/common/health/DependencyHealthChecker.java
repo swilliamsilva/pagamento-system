@@ -1,5 +1,7 @@
 package com.pagamento.common.health;
 
+
+
 import org.springframework.boot.actuate.health.Health;
 
 /**

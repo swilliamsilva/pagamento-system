@@ -3,10 +3,11 @@ package com.pagamento.common.health;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.ListTopicsOptions;
 import org.apache.kafka.clients.admin.ListTopicsResult;
-import org.apache.kafka.clients.admin.TopicListing;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.Health.Builder;
 import org.springframework.stereotype.Component;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
@@ -16,11 +17,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-/**
- * Verifica a saúde da conexão com o Kafka.
- * 
- * @apiNote Health Check para conexão com Kafka
- */
 @Component
 public class KafkaHealthChecker implements DependencyHealthChecker {
 
@@ -32,7 +28,10 @@ public class KafkaHealthChecker implements DependencyHealthChecker {
         @Value("${kafka.required-topics:}") String[] requiredTopics
     ) {
         this.adminClient = adminClient;
-        this.requiredTopics = Set.of(requiredTopics);
+        this.requiredTopics = requiredTopics.length == 0 ? 
+            Collections.emptySet() : 
+            Set.of(requiredTopics);
+            /* The method of(String[]) is undefined for the type Set*/
     }
     
     @Override
@@ -43,26 +42,34 @@ public class KafkaHealthChecker implements DependencyHealthChecker {
             Set<String> topics = topicsResult.names().get(2, TimeUnit.SECONDS);
             
             Duration duration = Duration.between(start, Instant.now());
-            Health.Builder builder = ((Object) Health.up())
+            Builder builder = Health.up()
                 .withDetail("response_time_ms", duration.toMillis())
                 .withDetail("topics_found", topics.size());
-            
-            // Verifica tópicos obrigatórios
+            /* Cannot invoke withDetail(String, int) on the primitive type void*/
             if (!requiredTopics.isEmpty()) {
                 Set<String> missingTopics = requiredTopics.stream()
                     .filter(topic -> !topics.contains(topic))
                     .collect(Collectors.toSet());
                 
                 if (!missingTopics.isEmpty()) {
-                    builder.down()
+                    builder = Health.down()
+                    		/*Cannot invoke withDetail(String, Set<String>) on the primitive type void */
                         .withDetail("error", "Missing required topics")
                         .withDetail("missing_topics", missingTopics);
                 }
             }
             
             return builder.build();
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             return Health.down()
+            		/* Cannot invoke withDetail(String, long) on the primitive type void */
+                .withDetail("error", "Interrupted while checking Kafka health")
+                .withDetail("response_time_ms", Duration.between(start, Instant.now()).toMillis())
+                .build();
+        } catch (ExecutionException | TimeoutException e) {
+            return Health.down()
+            		/* Cannot invoke withDetail(String, long) on the primitive type void*/
                 .withDetail("error", e.getMessage())
                 .withDetail("response_time_ms", Duration.between(start, Instant.now()).toMillis())
                 .build();

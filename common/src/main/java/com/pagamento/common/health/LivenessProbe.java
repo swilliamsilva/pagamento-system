@@ -1,6 +1,7 @@
 package com.pagamento.common.health;
 
 import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.Health.Builder;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
 import java.lang.management.ManagementFactory;
@@ -23,17 +24,18 @@ public class LivenessProbe implements HealthIndicator {
     @Override
     public Health health() {
         try {
-            Health.Builder builder = Health.up();
+            Health.Builder builder = (Builder) Health.up();
             
             // Verifica uso de memória
             MemoryUsage heapUsage = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage();
             double usedPercent = (double) heapUsage.getUsed() / heapUsage.getMax();
             builder.withDetail("heap_used", heapUsage.getUsed())
+            /*Cannot invoke withDetail(String, long) on the primitive type void */
                    .withDetail("heap_max", heapUsage.getMax())
                    .withDetail("heap_percent", String.format("%.2f%%", usedPercent * 100));
             
             if (usedPercent > MAX_HEAP_USAGE_PERCENT) {
-                builder.down().withDetail("error", "High heap memory usage");
+                ((Builder) builder.down()).withDetail("error", "High heap memory usage");
             }
             
             // Verifica contagem de threads
@@ -42,19 +44,21 @@ public class LivenessProbe implements HealthIndicator {
             builder.withDetail("thread_count", threadCount);
             
             if (threadCount > MAX_THREADS) {
-                builder.down().withDetail("error", "High thread count");
+                ((Builder) builder.down()).withDetail("error", "High thread count");
             }
             
             // Verificação de deadlocks
             long[] deadlockedThreads = threadBean.findDeadlockedThreads();
             if (deadlockedThreads != null && deadlockedThreads.length > 0) {
                 builder.down().withDetail("error", "Deadlock detected");
+                /* The method withDetail(String, String) is undefined for the type Object*/
             }
             
             return builder.build();
                 
         } catch (Exception e) {
             return Health.down()
+            		/*Cannot invoke build() on the primitive type void */
                 .withDetail("reason", "Exception in health check: " + e.getMessage())
                 .build();
         }

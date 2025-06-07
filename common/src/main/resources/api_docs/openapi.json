@@ -1,0 +1,54 @@
+{
+  "info": {
+    "version": "1.0.0", 
+    "contact": {
+      "name": "Equipe de Pagamentos - simuleagora.com", 
+      "email": "williamsilva.codigo@gmail.com"
+    }, 
+    "description": "Documentação gerada automaticamente para o módulo Common", 
+    "title": "Pagamento System API"
+  }, 
+  "paths": {
+    "/cartoes": {
+      "request": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/class"
+                }
+              }
+            }, 
+            "description": "OK"
+          }
+        }, 
+        "tags": [
+          "CartaoController"
+        ]
+      }
+    }
+  }, 
+  "servers": [
+    {
+      "url": "http://localhost:8080/api"
+    }
+  ], 
+  "components": {
+    "schemas": {
+      "HealthCheckResponse": {
+        "type": "object", 
+        "properties": {
+          "status": {
+            "type": "string"
+          }, 
+          "timestamp": {
+            "type": "string", 
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }, 
+  "openapi": "3.0.1"
+}

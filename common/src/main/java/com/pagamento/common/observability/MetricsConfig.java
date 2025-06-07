@@ -2,18 +2,15 @@ package com.pagamento.common.observability;
 
 import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Tags;
 import io.micrometer.core.instrument.config.MeterFilter;
 import io.micrometer.core.instrument.distribution.DistributionStatisticConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 
-@Configuration
 public class MetricsConfig {
 
     @Value("${spring.application.name:pagamento-service}")
@@ -24,19 +21,24 @@ public class MetricsConfig {
         "/actuator", "/swagger", "/v3/api-docs", "/health"
     );
 
+ // Atualize a classe:
     @Bean
-    public MeterRegistryCustomizer<MeterRegistry> metricsCommonTags() {
-        return registry -> registry.config()
-            .commonTags(
-                "application", applicationName,
-                "region", System.getenv().getOrDefault("AWS_REGION", "local"),
-                "environment", System.getenv().getOrDefault("ENV", "dev")
-            )
-            .meterFilter(MeterFilter.deny(id -> shouldIgnoreUri(id)))
-            .meterFilter(MeterFilter.maxExpected("http.server.requests", 10000L))
-            .meterFilter(enableHistograms());
+    public MeterRegistryCustomizer<MeterRegistry> metricsCommonTags(
+        @Value("${management.metrics.tags.application:${spring.application.name:application}}") String appName) {
+        
+        return registry -> {
+            registry.config()
+                .commonTags(
+                    "application", appName,
+                    "region", System.getenv().getOrDefault("AWS_REGION", "local"),
+                    "environment", System.getenv().getOrDefault("ENV", "dev")
+                )
+                .meterFilter(MeterFilter.deny(this::shouldIgnoreUri))
+                .meterFilter(enableHistograms());
+        };
     }
-
+    
+    
     private boolean shouldIgnoreUri(Meter.Id id) {
         String uri = id.getTag("uri");
         if (uri == null) return false;

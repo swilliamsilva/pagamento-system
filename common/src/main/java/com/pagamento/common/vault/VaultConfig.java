@@ -6,12 +6,12 @@ import org.springframework.vault.authentication.AppRoleAuthenticationOptions;
 import org.springframework.vault.client.VaultEndpoint;
 import org.springframework.vault.core.VaultTemplate;
 import org.springframework.vault.support.VaultResponse;
+import org.springframework.web.client.RestOperations;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.vault.authentication.ClientAuthentication;
 import java.net.URI;
 
-@Configuration
 public class VaultConfig {
 
     @Value("${vault.uri}")
@@ -32,7 +32,7 @@ public class VaultConfig {
             .secretId(AppRoleAuthenticationOptions.SecretId.provided(secretId))
             .build();
         
-        ClientAuthentication authentication = new AppRoleAuthentication(options, endpoint);
+        ClientAuthentication authentication = new AppRoleAuthentication(options, (RestOperations) endpoint);
         
         return new VaultTemplate(endpoint, authentication);
     }

@@ -2,59 +2,86 @@ package com.pagamento.common.validation;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.InputMismatchException;
 
 public class CPFValidator implements ConstraintValidator<ValidCPF, String> {
-
-    @Override
+/*
+ * The type ConstraintValidator is not generic; it cannot be parameterized with arguments <ValidCPF, String>
+ * 
+ * **/
+ 
     public void initialize(ValidCPF constraintAnnotation) {
+        // Inicialização, se necessário
     }
 
-    @Override
+    
     public boolean isValid(String cpf, ConstraintValidatorContext context) {
         if (cpf == null || cpf.trim().isEmpty()) {
+            buildViolation(context, "CPF não pode ser nulo ou vazio");
             return false;
         }
 
-        cpf = cpf.replace(".", "").replace("-", "");
+        String cleaned = cpf.replaceAll("[^\\d]", "");
+        if (cleaned.length() != 11) {
+            buildViolation(context, "CPF deve conter 11 dígitos");
+            return false;
+        }
 
-        if (cpf.length() != 11 || cpf.matches(cpf.charAt(0) + "{11}")) {
+        if (allDigitsEqual(cleaned)) {
+            buildViolation(context, "CPF inválido (todos dígitos iguais)");
             return false;
         }
 
         try {
-            int[] digits = new int[11];
-            for (int i = 0; i < 11; i++) {
-                digits[i] = Integer.parseInt(cpf.substring(i, i + 1));
-            }
-
-            int sum = 0;
-            for (int i = 0; i < 9; i++) {
-                sum += digits[i] * (10 - i);
-            }
-
-            int firstVerifier = 11 - (sum % 11);
-            if (firstVerifier >= 10) {
-                firstVerifier = 0;
-            }
-
-            if (firstVerifier != digits[9]) {
+            if (!isValidCPF(cleaned)) {
+                buildViolation(context, "CPF inválido");
                 return false;
             }
-
-            sum = 0;
-            for (int i = 0; i < 10; i++) {
-                sum += digits[i] * (11 - i);
-            }
-
-            int secondVerifier = 11 - (sum % 11);
-            if (secondVerifier >= 10) {
-                secondVerifier = 0;
-            }
-
-            return secondVerifier == digits[10];
-        } catch (InputMismatchException | NumberFormatException e) {
+            return true;
+        } catch (NumberFormatException e) {
+            buildViolation(context, "CPF contém caracteres inválidos");
             return false;
         }
+    }
+
+    private boolean allDigitsEqual(String cpf) {
+        return cpf.chars().allMatch(c -> c == cpf.charAt(0));
+    }
+
+    private boolean isValidCPF(String cpf) {
+        int[] digits = new int[11];
+        for (int i = 0; i < 11; i++) {
+            digits[i] = Character.getNumericValue(cpf.charAt(i));
+        }
+
+        // Cálculo do primeiro dígito verificador
+        int sum = 0;
+        for (int i = 0; i < 9; i++) {
+            sum += digits[i] * (10 - i);
+        }
+        int firstDigit = (sum % 11) < 2 ? 0 : 11 - (sum % 11);
+        if (firstDigit != digits[9]) {
+            return false;
+        }
+
+        // Cálculo do segundo dígito verificador
+        sum = 0;
+        for (int i = 0; i < 10; i++) {
+            sum += digits[i] * (11 - i);
+        }
+        int secondDigit = (sum % 11) < 2 ? 0 : 11 - (sum % 11);
+
+        return secondDigit == digits[10];
+    }
+
+    private void buildViolation(ConstraintValidatorContext context, String message) {
+        context.disableDefaultConstraintViolation();
+        context.buildConstraintViolationWithTemplate(message)
+               .addConstraintViolation();
+        
+        /**
+         * The method addConstraintViolation() is undefined for the type Object
+         * 
+         * */
+        
     }
 }

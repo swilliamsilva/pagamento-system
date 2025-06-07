@@ -7,6 +7,7 @@ import io.micrometer.core.instrument.Timer;
 import io.micrometer.tracing.Span;
 import io.micrometer.tracing.Tracer;
 import org.springframework.stereotype.Component;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -26,25 +27,43 @@ public class ObservabilityUtils {
     }
 
     public Counter getOrCreateCounter(String name, String description, String... tags) {
+        if (tags.length % 2 != 0) {
+            throw new IllegalArgumentException("Tags must be provided as key-value pairs");
+        }
+
         String key = name + String.join(",", tags);
-        return counters.computeIfAbsent(key, k -> 
-            Counter.builder(name)
-                .description(description)
-                .tags(tags)
-                .register(meterRegistry)
-        );
+        return counters.computeIfAbsent(key, k -> {
+            Counter.Builder counterBuilder = Counter.builder(name)
+                .description(description);
+            
+            // Adiciona tags como pares chave-valor
+            for (int i = 0; i < tags.length; i += 2) {
+                counterBuilder.tag(tags[i], tags[i+1]);
+            }
+            
+            return counterBuilder.register(meterRegistry);
+        });
     }
 
     public Timer getOrCreateTimer(String name, String description, String... tags) {
+        if (tags.length % 2 != 0) {
+            throw new IllegalArgumentException("Tags must be provided as key-value pairs");
+        }
+
         String key = name + String.join(",", tags);
-        return timers.computeIfAbsent(key, k -> 
-            Timer.builder(name)
+        return timers.computeIfAbsent(key, k -> {
+            Timer.Builder timerBuilder = Timer.builder(name)
                 .description(description)
-                .tags(tags)
                 .publishPercentiles(0.5, 0.95, 0.99)
-                .publishPercentileHistogram()
-                .register(meterRegistry)
-        );
+                .publishPercentileHistogram();
+            
+            // Adiciona tags como pares chave-valor
+            for (int i = 0; i < tags.length; i += 2) {
+                timerBuilder.tag(tags[i], tags[i+1]);
+            }
+            
+            return timerBuilder.register(meterRegistry);
+        });
     }
 
     public Span startSpan(String name) {

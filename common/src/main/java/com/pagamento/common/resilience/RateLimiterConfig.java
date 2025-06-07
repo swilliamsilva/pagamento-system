@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import java.time.Duration;
 
-@Configuration
+
 public class RateLimiterConfig {
 
     @Value("${ENV:dev}")
@@ -19,11 +19,17 @@ public class RateLimiterConfig {
         return RateLimiterRegistry.of(createDefaultConfig());
     }
 
-    private RateLimiterConfig createDefaultConfig() {
+    private io.github.resilience4j.ratelimiter.RateLimiterConfig createDefaultConfig() {
         boolean isProduction = "prod".equalsIgnoreCase(environment);
 
-        return RateLimiterConfig.custom()
+        return ((Object) RateLimiterConfig.custom())
             .limitForPeriod(isProduction ? 200 : 100)
+            /**
+             * 
+             * The method limitForPeriod(int) is undefined for the type Object
+             * */
+            
+            
             .limitRefreshPeriod(Duration.ofSeconds(1))
             .timeoutDuration(Duration.ofMillis(isProduction ? 100 : 500))
             .build();
@@ -31,17 +37,32 @@ public class RateLimiterConfig {
 
     @Bean(name = "paymentProcessingRateLimiter")
     public RateLimiter paymentProcessingRateLimiter(RateLimiterRegistry registry) {
-        return registry.rateLimiter("paymentProcessing", RateLimiterConfig.custom()
+        return registry.rateLimiter("paymentProcessing", ((Object) RateLimiterConfig.custom())
             .limitForPeriod(50)
+            
+            /**
+             * 
+             * The method limitForPeriod(int) is undefined for the type Object
+             * */
+            
             .limitRefreshPeriod(Duration.ofSeconds(1))
             .timeoutDuration(Duration.ofMillis(300))
             .build());
     }
 
-    @Bean(name = "apiRateLimiter")
+    private static Object custom() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Bean(name = "apiRateLimiter")
     public RateLimiter apiRateLimiter(RateLimiterRegistry registry) {
-        return registry.rateLimiter("api", RateLimiterConfig.custom()
+        return registry.rateLimiter("api", ((Object) RateLimiterConfig.custom())
             .limitForPeriod(1000)
+            /*
+             * The method limitForPeriod(int) is undefined for the type Object
+             * **/
+            
             .limitRefreshPeriod(Duration.ofMinutes(1))
             .build());
     }

@@ -1,149 +1,162 @@
-<properties>
-    <java.version>1.8</java.version>
-    <resilience4j.version>1.7.1</resilience4j.version> <!-- Versão compatível com Java 8 -->
-    <micrometer.version>1.7.6</micrometer.version>
-</properties>
-<dependencies>
-    <!-- Resilience4j com versão compatível com Java 8 -->
-    <dependency>
-        <groupId>io.github.resilience4j</groupId>
-        <artifactId>resilience4j-spring-boot2</artifactId>
-        <version>${resilience4j.version}</version>
-    </dependency>
-    <dependency>
-         <groupId>io.github.resilience4j</groupId>
-         <artifactId>resilience4j-circuitbreaker</artifactId>
-         <version>${resilience4j.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>io.github.resilience4j</groupId>
-        <artifactId>resilience4j-retry</artifactId>
-        <version>${resilience4j.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>io.github.resilience4j</groupId>
-        <artifactId>resilience4j-micrometer</artifactId>
-        <version>${resilience4j.version}</version>
-    </dependency>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-    <!-- Micrometer -->
-    <dependency>
-        <groupId>io.micrometer</groupId>
-        <artifactId>micrometer-core</artifactId>
-        <version>${micrometer.version}</version>
-    </dependency>
-    
-    <!-- Outras dependências permanecem iguais -->
+    <groupId>com.pagamento</groupId>
+    <artifactId>seu-modulo</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
 
-  <dependency>
-    <groupId>io.github.resilience4j</groupId>
-    <artifactId>resilience4j-spring-boot2</artifactId>
-    <version>${resilience4j.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>io.github.resilience4j</groupId>
-    <artifactId>resilience4j-circuitbreaker</artifactId>
-    <version>${resilience4j.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>io.github.resilience4j</groupId>
-    <artifactId>resilience4j-retry</artifactId>
-    <version>${resilience4j.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>io.github.resilience4j</groupId>
-    <artifactId>resilience4j-ratelimiter</artifactId>
-    <version>${resilience4j.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>io.github.resilience4j</groupId>
-    <artifactId>resilience4j-timelimiter</artifactId>
-    <version>${resilience4j.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>io.github.resilience4j</groupId>
-    <artifactId>resilience4j-micrometer</artifactId>
-    <version>${resilience4j.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>io.github.resilience4j</groupId>
-    <artifactId>resilience4j-reactor</artifactId>
-    <version>${resilience4j.version}</version>
-  </dependency>
+    <properties>
+        <java.version>1.8</java.version>
+        <resilience4j.version>1.7.1</resilience4j.version>
+        <micrometer.version>1.7.6</micrometer.version>
+        <otel.version>1.34.1</otel.version>
+        <spring-vault.version>2.3.4</spring-vault.version>
+    </properties>
 
-  <!-- Observabilidade -->
-  <dependency>
-    <groupId>io.micrometer</groupId>
-    <artifactId>micrometer-core</artifactId>
-  </dependency>
-  <dependency>
-    <groupId>io.opentelemetry</groupId>
-    <artifactId>opentelemetry-exporter-otlp</artifactId>
-    <version>${otel.version}</version>
-  </dependency>
-
-  <!-- Data Sources -->
-  <dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-data-mongodb</artifactId>
-  </dependency>
-  <dependency>
-    <groupId>com.github.derjust</groupId>
-    <artifactId>spring-data-dynamodb</artifactId>
-    <version>5.1.0</version>
-  </dependency>
-  <dependency>
-    <groupId>org.springframework.vault</groupId>
-    <artifactId>spring-vault-core</artifactId>
-    <version>${spring-vault.version}</version>
-  </dependency>
-
-  <!-- Testes -->
-  <dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-test</artifactId>
-    <scope>test</scope>
-  </dependency>
-  <dependency>
-    <groupId>org.awaitility</groupId>
-    <artifactId>awaitility</artifactId>
-    <version>4.2.0</version>
-    <scope>test</scope>
-  </dependency>
-  <dependency>
-    <groupId>com.squareup.okhttp3</groupId>
-    <artifactId>mockwebserver</artifactId>
-    <version>4.10.0</version>
-    <scope>test</scope>
-  </dependency>
-  <dependency>
-    <groupId>org.junit.jupiter</groupId>
-    <artifactId>junit-jupiter</artifactId>
-    <scope>test</scope>
-  </dependency>
-  <dependency>
-    <groupId>org.mockito</groupId>
-    <artifactId>mockito-core</artifactId>
-    <scope>test</scope>
-  </dependency>
-  <dependency>
-    <groupId>org.mockito</groupId>
-    <artifactId>mockito-junit-jupiter</artifactId>
-    <scope>test</scope>
-  </dependency>
-  <dependency>
-    <groupId>io.projectreactor</groupId>
-    <artifactId>reactor-test</artifactId>
-    <scope>test</scope>
-  </dependency>
-  <dependency>
-    <groupId>org.springframework.cloud</groupId>
-    <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>
-    <exclusions>
-        <exclusion>
+    <dependencies>
+           <!-- Documentação OpenApi/Swagger -->
+        <dependency>
+           <groupId>org.springdoc</groupId>
+           <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+           <version>2.5.0</version>
+        </dependency>
+        <!-- Resilience4j para Java 8 -->
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-spring-boot2</artifactId>
+            <version>${resilience4j.version}</version>
+        </dependency>
+        <dependency>
             <groupId>io.github.resilience4j</groupId>
             <artifactId>resilience4j-circuitbreaker</artifactId>
-        </exclusion>
-    </exclusions>
+            <version>${resilience4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-retry</artifactId>
+            <version>${resilience4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-ratelimiter</artifactId>
+            <version>${resilience4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-timelimiter</artifactId>
+            <version>${resilience4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-micrometer</artifactId>
+            <version>${resilience4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-reactor</artifactId>
+            <version>${resilience4j.version}</version>
+        </dependency>
+
+        <!-- Micrometer e Observabilidade -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+            <version>${micrometer.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-otlp</artifactId>
+            <version>${otel.version}</version>
+        </dependency>
+
+        <!-- Data Sources -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.derjust</groupId>
+            <artifactId>spring-data-dynamodb</artifactId>
+            <version>5.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.vault</groupId>
+            <artifactId>spring-vault-core</artifactId>
+            <version>${spring-vault.version}</version>
+        </dependency>
+
+        <!-- Testes -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>4.2.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver</artifactId>
+            <version>4.10.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+    <groupId>javax.validation</groupId>
+    <artifactId>validation-api</artifactId>
+    <version>2.0.1.Final</version>
 </dependency>
-</dependencies>
+
+<dependency>
+    <groupId>org.hibernate.validator</groupId>
+    <artifactId>hibernate-validator</artifactId>
+    <version>6.2.5.Final</version>
+</dependency>
+
+<dependency>
+    <groupId>org.glassfish</groupId>
+    <artifactId>javax.el</artifactId>
+    <version>3.0.0</version>
+</dependency>
+        
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

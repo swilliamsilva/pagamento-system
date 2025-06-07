@@ -40,6 +40,9 @@ public class LoggingAspect {
         String spanId = "no-span";
         
         if (Timer.currentSpan() != null) {
+        	/*
+        	 *The method currentSpan() is undefined for the type Timer 
+        	 * **/
             traceId = Timer.currentSpan().context().traceId();
             spanId = Timer.currentSpan().context().spanId();
         }
@@ -49,6 +52,9 @@ public class LoggingAspect {
         MDC.put("logId", UUID.randomUUID().toString().substring(0, 8));
         
         LogManager.debug("Method {} called with args: [{}]", methodName, args);
+        /*
+         * The method debug(String, String, String) is undefined for the type LogManager
+         * */
         
         long startTime = System.currentTimeMillis();
         try {

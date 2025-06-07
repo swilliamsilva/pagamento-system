@@ -2,15 +2,54 @@ package com.pagamento.common.observability;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.filter.ServerHttpObservationFilter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@Configuration
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationHandler;
+import io.micrometer.observation.aop.ObservedAspect;
+import io.micrometer.observation.ObservationPredicate;
+
+// @Configuration
 public class ObservabilityConfig implements WebMvcConfigurer {
 
     @Bean
-    public ServerHttpObservationFilter observationFilter() {
-        return new ServerHttpObservationFilter();
+    public ObservationFilter observationFilter(ObservationRegistry registry) {
+        return new ObservationFilter(registry);
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(
+            new ObservationHandlerInterceptor(
+                observationRegistry(null) // Will be autowired by Spring
+            )
+        );
+    }
+
+    @Bean
+    public ObservationRegistry observationRegistry(MeterRegistry meterRegistry) {
+        ObservationRegistry registry = ObservationRegistry.create();
+        
+        if (meterRegistry != null) {
+            registry.observationConfig()
+                .observationHandler(
+                    (ObservationHandler<Observation.Context>) 
+                    new DefaultMeterObservationHandler(meterRegistry)
+                );
+        }
+        
+        // Optional: Add additional configuration
+        registry.observationConfig()
+            .observationPredicate((name, context) -> !name.startsWith("ignored"));
+        
+        return registry;
+    }
+
+    @Bean
+    public ObservedAspect observedAspect(ObservationRegistry observationRegistry) {
+        return new ObservedAspect(observationRegistry);
     }
 }

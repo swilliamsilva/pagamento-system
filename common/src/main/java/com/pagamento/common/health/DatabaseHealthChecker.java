@@ -6,11 +6,6 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.time.Instant;
 
-/**
- * Verifica a saúde da conexão com o banco de dados.
- * 
- * @apiNote Health Check para conexão de banco de dados
- */
 @Component
 public class DatabaseHealthChecker implements DependencyHealthChecker {
 
@@ -27,15 +22,18 @@ public class DatabaseHealthChecker implements DependencyHealthChecker {
             Integer result = jdbcTemplate.queryForObject("SELECT 1", Integer.class);
             Duration duration = Duration.between(start, Instant.now());
             
-            return ((Object) Health.up())
-                .withDetail("response_time_ms", duration.toMillis())
-                .withDetail("result", result)
-                .build();
+            // Correção: Usando o Builder corretamente
+            Health.Builder builder = Health.up();
+            builder.withDetail("response_time_ms", duration.toMillis());
+            builder.withDetail("result", result);
+            return builder.build();
+            
         } catch (Exception e) {
-            return ((Object) Health.down())
-                .withDetail("error", e.getMessage())
-                .withDetail("response_time_ms", Duration.between(start, Instant.now()).toMillis())
-                .build();
+            // Correção: Usando o Builder corretamente
+            Health.Builder builder = Health.down();
+            builder.withDetail("error", e.getMessage());
+            builder.withDetail("response_time_ms", Duration.between(start, Instant.now()).toMillis());
+            return builder.build();
         }
     }
 }

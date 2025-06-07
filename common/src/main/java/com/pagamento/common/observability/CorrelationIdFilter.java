@@ -4,7 +4,7 @@ import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.propagation.TextFormat;
-import io.opencensus.trace.propagation.TraceContextFormat;
+
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -20,7 +20,14 @@ import java.util.UUID;
 public class CorrelationIdFilter extends OncePerRequestFilter {
 
     private static final String CORRELATION_ID = "X-Correlation-ID";
+    /*
+     * Type mismatch: cannot convert from com.pagamento.common.observability.TextFormat to io.opencensus.trace.propagation.TextFormat
+     * */
     private static final TextFormat textFormat = TraceContextFormat.getInstance();
+    
+    /*
+     * Type mismatch: cannot convert from com.pagamento.common.observability.TextFormat to io.opencensus.trace.propagation.TextFormat
+     * */
     private static final Tracer tracer = Tracing.getTracer();
 
     @Override

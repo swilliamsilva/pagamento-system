@@ -1,6 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -20,96 +22,33 @@
         <jackson.version>2.17.0</jackson.version>
         <aspectj.version>1.9.22</aspectj.version>
         <slf4j.version>1.7.36</slf4j.version>
-        <micrometer-tracing.version>1.2.0</micrometer-tracing.version>
+        <micrometer-tracing.version>1.0.0</micrometer-tracing.version>
         <otel.version>1.34.1</otel.version>
         <spring-vault.version>2.3.4</spring-vault.version>
-         <resilience4j.version>1.7.1</resilience4j.version>
-        
+        <resilience4j.version>1.7.1</resilience4j.version>
+        <server.base.url>http://localhost:8080</server.base.url>
     </properties>
 
     <dependencies>
-
-        <!-- Core / Serialization -->
+        <!-- Documentação OpenApi/Swagger -->
         <dependency>
-            <groupId>javax.persistence</groupId>
-            <artifactId>javax.persistence-api</artifactId>
-            <version>2.2</version>
+           <groupId>org.springdoc</groupId>
+           <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+           <version>2.5.0</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
+           <groupId>org.springdoc</groupId>
+           <artifactId>springdoc-openapi-ui</artifactId>
+           <version>1.8.0</version>
         </dependency>
+        <!-- Spring Core para ClassPathResource -->
         <dependency>
-            <groupId>org.mapstruct</groupId>
-            <artifactId>mapstruct</artifactId>
-            <version>${mapstruct.version}</version>
-        </dependency>
-
-        <!-- Logging / AOP -->
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjweaver</artifactId>
-            <version>${aspectj.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-        </dependency>
-
-        <!-- Observabilidade -->
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-tracing</artifactId>
-            <version>${micrometer-tracing.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-tracing-bridge-otel</artifactId>
-            <version>${micrometer-tracing.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-registry-prometheus</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.opentelemetry</groupId>
-            <artifactId>opentelemetry-exporter-otlp</artifactId>
-            <version>${otel.version}</version>
-        </dependency>
-
-        <!-- OpenCensus -->
-        <dependency>
-            <groupId>io.opencensus</groupId>
-            <artifactId>opencensus-api</artifactId>
-            <version>0.31.1</version>
-        </dependency>
-        <dependency>
-            <groupId>io.opencensus</groupId>
-            <artifactId>opencensus-impl</artifactId>
-            <version>0.31.1</version>
-        </dependency>
-        <dependency>
-            <groupId>io.opencensus</groupId>
-            <artifactId>opencensus-exporter-trace-logging</artifactId>
-            <version>0.31.1</version>
-        </dependency>
-        <dependency>
-            <groupId>io.opencensus</groupId>
-            <artifactId>opencensus-contrib-http-util</artifactId>
-            <version>0.31.1</version>
-        </dependency>
-
-        <!-- Spring Starters -->
+          <groupId>org.springframework</groupId>
+          <artifactId>spring-core</artifactId>
+       </dependency>
+      
+    
+        <!-- Spring Boot & Core -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -134,52 +73,209 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-cassandra</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+            <version>1.5.22.RELEASE</version>
+        </dependency>
+        <dependency>
+             <groupId>org.springframework.boot</groupId>
+             <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        
+        <!-- Para suporte a EL (necessário para mensagens de erro) -->
 
-        <!-- Kafka -->
+        <dependency>
+           <groupId>javax.validation</groupId>
+           <artifactId>validation-api</artifactId>
+           <version>2.0.1.Final</version>
+        </dependency>
+
+<!-- Para implementação (Hibernate Validator) -->
+        <dependency>
+           <groupId>org.hibernate.validator</groupId>
+           <artifactId>hibernate-validator</artifactId>
+           <version>6.2.5.Final</version>
+        </dependency>
+
+        <dependency>
+           <groupId>javax.validation</groupId>
+           <artifactId>validation-api</artifactId>
+           <version>2.0.1.Final</version>
+        </dependency>
+
+        <dependency>
+           <groupId>org.hibernate.validator</groupId>
+           <artifactId>hibernate-validator</artifactId>
+           <version>6.2.5.Final</version>
+        </dependency>
+
+        <dependency>
+           <groupId>org.glassfish</groupId>
+           <artifactId>javax.el</artifactId>
+           <version>3.0.0</version>
+        </dependency>
+
+
+        <dependency>
+           <groupId>org.hibernate.validator</groupId>
+           <artifactId>hibernate-validator-annotation-processor</artifactId>
+           <version>6.0.13.Final</version>
+        </dependency>
+
+<!-- Para suporte a EL (necessário para mensagens de erro) -->
+        <dependency>
+           <groupId>org.glassfish</groupId>
+           <artifactId>javax.el</artifactId>
+           <version>3.0.1-b11</version>
+        </dependency>
+
+        <!-- Kafka & Vault -->
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
         </dependency>
-
-        <!-- Vault -->
-       <dependency>
+        <dependency>
             <groupId>org.springframework.vault</groupId>
             <artifactId>spring-vault-core</artifactId>
             <version>${spring-vault.version}</version>
-  
-       </dependency>
-       
-         <!-- DynamoDB -->
+        </dependency>
+
+        <!-- DynamoDB -->
         <dependency>
             <groupId>com.github.derjust</groupId>
             <artifactId>spring-data-dynamodb</artifactId>
             <version>5.1.0</version>
         </dependency>
 
-<!-- Resilience4j com versão compatível com Java 8 -->
-    <dependency>
-        <groupId>io.github.resilience4j</groupId>
-        <artifactId>resilience4j-spring-boot2</artifactId>
-        <version>${resilience4j.version}</version>
-    </dependency>
-    <dependency>
-         <groupId>io.github.resilience4j</groupId>
-         <artifactId>resilience4j-circuitbreaker</artifactId>
-         <version>${resilience4j.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>io.github.resilience4j</groupId>
-        <artifactId>resilience4j-retry</artifactId>
-        <version>${resilience4j.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>io.github.resilience4j</groupId>
-        <artifactId>resilience4j-micrometer</artifactId>
-        <version>${resilience4j.version}</version>
-    </dependency>
+        <!-- Resilience4J Java 8 Compat -->
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-spring-boot2</artifactId>
+            <version>${resilience4j.version}</version>
+        </dependency>
+        
+        
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-circuitbreaker</artifactId>
+            <version>${resilience4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-retry</artifactId>
+            <version>${resilience4j.version}</version>
+        </dependency>
+        
+        
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-micrometer</artifactId>
+            <version>${resilience4j.version}</version>
+        </dependency>
 
+        <!-- Micrometer Tracing & Observability -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+            <version>1.10.0</version>
+        </dependency>
+        
+        <!-- Micrometer Core -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+            <version>1.11.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing</artifactId>
+            <version>${micrometer-tracing.version}</version>
+        </dependency>
+        <!-- Micrometer Tracing -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing</artifactId>
+            <version>1.1.4</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-otel</artifactId>
+            <version>${micrometer-tracing.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-exporter-otlp</artifactId>
+            <version>${otel.version}</version>
+        </dependency>
+       
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+         </dependency>
+         <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-observation</artifactId>
+            <version>1.10.5</version>
+         </dependency>
+         <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+            <version>1.10.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing</artifactId>
+            <version>1.1.3</version>
+        </dependency>
 
-        <!-- Servlet -->
+        <!-- OpenCensus -->
+        <dependency>
+            <groupId>io.opencensus</groupId>
+            <artifactId>opencensus-api</artifactId>
+            <version>0.31.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opencensus</groupId>
+            <artifactId>opencensus-impl</artifactId>
+            <version>0.31.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opencensus</groupId>
+            <artifactId>opencensus-exporter-trace-logging</artifactId>
+            <version>0.31.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.opencensus</groupId>
+            <artifactId>opencensus-contrib-http-util</artifactId>
+            <version>0.31.1</version>
+        </dependency>
+
+        <!-- Jakarta/Javax -->
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.persistence</groupId>
+            <artifactId>javax.persistence-api</artifactId>
+            <version>2.2</version>
+        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -187,7 +283,37 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Test -->
+        <!-- Serialization -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+        <!-- MapStruct -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${mapstruct.version}</version>
+        </dependency>
+
+        <!-- AOP & Logging -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>${aspectj.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+
+        <!-- Testes -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -225,26 +351,76 @@
             <version>4.10.0</version>
             <scope>test</scope>
         </dependency>
-    </dependencies>
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>2.0.1.Final</version>
+        </dependency>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <annotationProcessorPaths>
-                        <path>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>${mapstruct.version}</version>
-                        </path>
-                    </annotationProcessorPaths>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-</project>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>6.0.21.Final</version>
+        </dependency>
+                
+    </dependencies>
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-maven-plugin</artifactId>
+            <version>1.8.0</version>
+            <executions>
+                <execution>
+                    <id>generate-api-docs</id>
+                    <goals>
+                        <goal>generate</goal>
+                    </goals>
+                    <phase>compile</phase>
+                </execution>
+            </executions>
+            <configuration>
+                <apiDocsUrl>${server.base.url}/v3/api-docs</apiDocsUrl>
+                <outputDir>${project.build.directory}/api-docs</outputDir>
+                <outputFileName>openapi.json</outputFileName>
+                <!-- Configuração do cabeçalho da documentação -->
+                <info>
+                    <title>${project.name} API - Health Check de Serviços Externos</title>
+                    <version>${project.version}</version>
+                    <description>
+                        ========================================================
+                        DOCUMENTAÇÃO OPENAPI - HEALTH CHECK DE SERVIÇOS EXTERNOS
+                        
+                        Especificação para o endpoint que monitora a saúde de APIs externas.
+                        Classe: 
+                        Módulo: pagamento-common
+                        ========================================================
+                    </description>
+                    <contact>
+                        <name>William Silva</name>
+                        <email>williamsilva.codigo@gmail.com</email>
+                    </contact>
+                </info>
+            </configuration>
+        </plugin>
+
+        <!-- Outros plugins (como maven-compiler-plugin) -->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.1</version>
+            <configuration>
+                <source>${java.version}</source>
+                <target>${java.version}</target>
+                <annotationProcessorPaths>
+                    <path>
+                        <groupId>org.mapstruct</groupId>
+                        <artifactId>mapstruct-processor</artifactId>
+                        <version>${mapstruct.version}</version>
+                    </path>
+                </annotationProcessorPaths>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+

@@ -33,10 +33,11 @@ public class ReadinessProbe implements HealthIndicator {
                 Health health = checker.checkHealth();
                 dependencyStatus.put(checker.getClass().getSimpleName(), health);
                 return health.getStatus().equals(Health.status("UP").build().getStatus());
+        /*The method build() is undefined for the type Object*/
             });
         
         // Constrói detalhes de todas as dependências
-        Map<String, Object> details = dependencyStatus.entrySet().stream()
+        Map<Object, Object> details = dependencyStatus.entrySet().stream()
             .collect(Collectors.toMap(
                 Map.Entry::getKey,
                 e -> e.getValue().getDetails()
@@ -44,6 +45,8 @@ public class ReadinessProbe implements HealthIndicator {
         
         return allHealthy 
             ? Health.up().withDetails(details).build()
+            		/*The method withDetails(Map<Object,Object>) is undefined for the type Health.Builder*/
             : Health.down().withDetails(details).build();
+            /*The method withDetails(Map<Object,Object>) is undefined for the type Health.Builder*/
     }
 }
