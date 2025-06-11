@@ -1,0 +1,53 @@
+openapi: 3.0.1
+info:
+  title: API de Integração Asaas
+  version: 1.0.0
+  description: |-
+    Endpoints e modelos para integração com gateway de pagamento Asaas.
+    Autor: William Silva <williamsilva.codigo@gmail.com>
+
+paths:
+  /api/payments/process:
+    post:
+      tags: [Payments]
+      summary: Processar pagamento via Asaas
+      description: |-
+        Fluxo:
+        1. Sistema envia PaymentMethodDTO
+        2. Adaptador converte para AsaasPaymentRequest
+        3. Cliente HTTP envia para API Asaas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentMethodDTO'
+      responses:
+        200:
+          description: Pagamento processado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AsaasPaymentResponse'
+
+components:
+  schemas:
+    PaymentMethodDTO:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [CREDIT_CARD, DEBIT_CARD, PIX, BOLETO]
+        cardDetails:
+          $ref: '#/components/schemas/CardDetails'
+        # ... outros campos
+
+    AsaasPaymentRequest:
+      type: object
+      properties:
+        cardNumber:
+          type: string
+          example: "4111111111111111"
+        expiryDate: 
+          type: string
+          example: "0525"
+        # ... outros campos

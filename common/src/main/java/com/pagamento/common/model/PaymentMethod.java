@@ -1,43 +1,39 @@
 package com.pagamento.common.model;
 
+import javax.persistence.*;
 import java.util.UUID;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "payment_methods")
 public class PaymentMethod {
+    public enum Type { CREDIT_CARD, DEBIT_CARD, PIX, BOLETO, PLATFORM }
+    
     @Id
+    @GeneratedValue
     private UUID id;
-    private String type; // CREDIT_CARD, DEBIT_CARD, PIX, BOLETO
-    private String details; // JSON com dados específicos
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Type type;
+    
+    @Column(nullable = false)
+    private String details;
+    
+    @Column(nullable = false)
+    private String bank;
     
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonIgnore
     private User user;
-
-    public PaymentMethod() {
-        // UUID será gerado pelo provedor de persistência
-    }
-
-    public PaymentMethod(String type, String details, User user) {
-        this.type = type;
-        this.details = details;
-        this.user = user;
-    }
 
     // Getters e Setters
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    public Type getType() { return type; }
+    public void setType(Type type) { this.type = type; }
     public String getDetails() { return details; }
     public void setDetails(String details) { this.details = details; }
+    public String getBank() { return bank; }
+    public void setBank(String bank) { this.bank = bank; }
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
 }

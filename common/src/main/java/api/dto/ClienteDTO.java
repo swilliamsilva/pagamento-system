@@ -1,4 +1,4 @@
-package com.pagamento.common.dto;
+package api.dto;
 
 import com.pagamento.common.validation.ValidCPF;
 
