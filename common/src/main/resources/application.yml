@@ -24,26 +24,37 @@ spring:
           url: /v3/api-docs/health-checks
         - name: Main API
           url: /v3/api-docs
+        - name: External Health API
+          url: /api-docs/external-health.yaml
       tags-sorter: alpha
       operations-sorter: alpha
     api-docs:
       path: /v3/api-docs
     default-consumes-media-type: application/json
     default-produces-media-type: application/json
-    
-    springdoc:
-  swagger-ui:
-    urls:
-      - name: External Health API
-        url: /api-docs/external-health.yaml
-      - name: Generated API
-        url: /v3/api-docs
-        
-        # Configurações do health check
-external.service.health.url=https://api.externa.com/health
-external.service.name=ServiçoExterno
 
-# Health Check Config
-external.service.health.url=https://api.externa.com/health
-external.service.name=PaymentGateway
-management.endpoint.health.show-details=always
+# Configurações de serviços externos
+external:
+  service:
+    health:
+      url: https://api.externa.com/health
+    name: PaymentGateway
+
+# Configurações de Health Check
+management:
+  endpoint:
+    health:
+      show-details: always
+  otlp:
+    metrics:
+      export:
+        enabled: true
+    tracing:
+      export:
+        enabled: true
+    endpoint: http://localhost:4317
+
+# Nome do serviço
+spring:
+  application:
+    name: payment-service

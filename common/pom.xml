@@ -54,32 +54,32 @@
         </dependency>
         <!-- Spring Core para ClassPathResource -->
         <dependency>
-          <groupId>org.springframework</groupId>
-          <artifactId>spring-core</artifactId>
+           <groupId>org.springframework</groupId>
+           <artifactId>spring-core</artifactId>
        </dependency>
  
     <!-- Documentação OpenApi/Swagger -->
-    <dependency>
-        <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.5.0</version>
-        </dependency>
+       <dependency> 
+           <groupId>org.springdoc</groupId>
+           <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+           <version>2.5.0</version>
+       </dependency> 
 
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
     <!-- Spring Core para ClassPathResource -->
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
+           <groupId>org.springframework</groupId>
+           <artifactId>spring-core</artifactId>
         </dependency>
 
         <!-- Spring Boot & Core -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -132,7 +132,7 @@
            <artifactId>validation-api</artifactId>
            <version>2.0.1.Final</version>
         </dependency>
-
+  
         <dependency>
            <groupId>org.hibernate.validator</groupId>
            <artifactId>hibernate-validator</artifactId>
@@ -202,24 +202,34 @@
             <artifactId>resilience4j-micrometer</artifactId>
             <version>${resilience4j.version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-ratelimiter</artifactId>
+              <version>${resilience4j.version}</version>
+            
+       </dependency>
 
         <!-- Micrometer Tracing & Observability -->
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-core</artifactId>
         </dependency>
+  
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-core</artifactId>
             <version>1.10.0</version>
         </dependency>
         
-        <!-- Micrometer Core -->
-        <dependency>
+        <!--Micrometer Core -->
+       <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-core</artifactId>
             <version>1.11.5</version>
         </dependency>
+        
+       
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-tracing</artifactId>
@@ -246,11 +256,13 @@
             <artifactId>opentelemetry-exporter-otlp</artifactId>
             <version>${otel.version}</version>
         </dependency>
-       
+ 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
+        
+
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
@@ -410,16 +422,55 @@
     <artifactId>mapstruct</artifactId>
     <version>1.5.3.Final</version>
 </dependency>
+                <!-- Spring Security -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    
+    <!-- OAuth2 Resource Server -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+    </dependency>
+                
+                <dependency>
+    <groupId>io.micrometer</groupId>
+    <artifactId>micrometer-tracing-bridge-otel</artifactId>
+    <version>1.2.0</version> <!-- Verifique a versão mais recente -->
+</dependency>
+
+<!-- OpenTelemetry SDK e Exportador OTLP -->
+<dependency>
+    <groupId>io.opentelemetry</groupId>
+    <artifactId>opentelemetry-sdk</artifactId>
+    <version>1.38.0</version> <!-- Verifique a versão mais recente -->
+</dependency>
+<dependency>
+    <groupId>io.opentelemetry</groupId>
+    <artifactId>opentelemetry-exporter-otlp</artifactId>
+    <version>1.38.0</version> <!-- Verifique a versão mais recente -->
+</dependency>
+
+<!-- Usando Brave (outro sistema de tracing compatível com SB2.7) -->
+<dependency>
+    <groupId>io.zipkin.brave</groupId>
+    <artifactId>brave</artifactId>
+    <version>5.16.0</version>
+</dependency>
+
                 
     </dependencies>
+    
    <build>
     <plugins>
         <plugin>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-maven-plugin</artifactId>
             <version>1.3</version>
+            
             <executions>
-                <execution>
+                 <execution>
                     <id>generate-api-docs</id>
                     <goals>
                         <goal>generate</goal>

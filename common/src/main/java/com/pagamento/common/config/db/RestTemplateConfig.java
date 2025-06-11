@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate;
  * Site: simuleagora.com
  * ========================================================
  */
-@Configuration
+//@Configuration
 public class RestTemplateConfig {
     
     /**
