@@ -1,20 +1,44 @@
 spring:
+  application:
+    name: payment-service
+  
+  # Configurações do Kafka - Versão melhorada
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
-      group-id: pagamento-group
+      group-id: ${KAFKA_CONSUMER_GROUP:pagamento-group}
       auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*"
+        spring.json.value.default.type: com.pagamento.events.PagamentoEvent
+        # Adicionado para melhor compatibilidade
+        spring.json.use.type.headers: false
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        # Configurações adicionais do producer
+        linger.ms: 5
+        batch.size: 16384
+        compression.type: gzip
+        # Desabilita headers de tipo para melhor interoperabilidade
+        spring.json.add.type.headers: false
 
+  # Configurações do Cassandra (mantidas como estão)
   data:
     cassandra:
-      contact-points: localhost
-      port: 9042
-      keyspace-name: payment_keyspace
-      schema-action: none
-      local-datacenter: datacenter1
+      contact-points: ${CASSANDRA_CONTACT_POINTS:localhost}
+      port: ${CASSANDRA_PORT:9042}
+      keyspace-name: ${CASSANDRA_KEYSPACE:payment_keyspace}
+      schema-action: ${CASSANDRA_SCHEMA_ACTION:none}
+      local-datacenter: ${CASSANDRA_DATACENTER:datacenter1}
+      connection:
+        connect-timeout: ${CASSANDRA_CONNECT_TIMEOUT:5s}
+        init-query-timeout: ${CASSANDRA_INIT_TIMEOUT:10s}
 
+  # Configurações do SpringDoc/OpenAPI (mantidas)
   springdoc:
     swagger-ui:
       enabled: true
@@ -28,33 +52,90 @@ spring:
           url: /api-docs/external-health.yaml
       tags-sorter: alpha
       operations-sorter: alpha
+      display-request-duration: true
+      filter: true
     api-docs:
       path: /v3/api-docs
+      enabled: true
     default-consumes-media-type: application/json
     default-produces-media-type: application/json
 
-# Configurações de serviços externos
+# Configurações de serviços externos (mantidas)
 external:
   service:
     health:
-      url: https://api.externa.com/health
-    name: PaymentGateway
+      url: ${EXTERNAL_HEALTH_URL:https://api.externa.com/health}
+      timeout: ${EXTERNAL_HEALTH_TIMEOUT:2000}
+    name: ${EXTERNAL_SERVICE_NAME:PaymentGateway}
 
-# Configurações de Health Check
+# Configurações de Health Check e Monitoramento - Versão revisada
 management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+    jmx:
+      exposure:
+        include: health, metrics
   endpoint:
     health:
-      show-details: always
-  otlp:
+      show-details: ${MANAGEMENT_HEALTH_SHOW_DETAILS:always}
+      probes:
+        enabled: true
+      group:
+        custom:
+          include: db, diskSpace, cassandra, kafka
+          show-details: always
     metrics:
-      export:
+      enabled: true
+      distribution:
+        percentiles-histogram:
+          http.server.requests: true
+        percentiles:
+          http.server.requests: 0.5,0.95,0.99
+  health:
+    cassandra:
+      enabled: true
+    kafka:
+      enabled: true
+      # Tempo de espera para verificação do Kafka
+      timeout: 5s
+    diskspace:
+      enabled: true
+      threshold: 10MB
+    db:
+      enabled: true
+  metrics:
+    export:
+      # Habilita exportação para múltiplos sistemas
+      prometheus:
         enabled: true
-    tracing:
-      export:
-        enabled: true
-    endpoint: http://localhost:4317
+      otlp:
+        enabled: ${OTLP_METRICS_ENABLED:true}
+    enable:
+      # Habilita métricas específicas
+      kafka: true
+      jvm: true
+      system: true
+      cassandra: true
+  tracing:
+    sampling:
+      probability: 0.1 # 10% dos requests serão rastreados
 
-# Nome do serviço
-spring:
-  application:
-    name: payment-service
+# Configuração de Logging - Versão melhorada
+logging:
+  level:
+    root: ${LOGGING_LEVEL:INFO}
+    org.springframework.web: ${LOGGING_LEVEL_SPRING:INFO}
+    org.apache.kafka: ${LOGGING_LEVEL_KAFKA:WARN}
+    org.springframework.kafka: ${LOGGING_LEVEL_SPRING_KAFKA:INFO}
+    com.pagamento: ${LOGGING_LEVEL_APP:DEBUG}
+    com.datastax.oss: ${LOGGING_LEVEL_CASSANDRA:WARN}
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr([%thread]){orange} %clr(%-5level){green} %clr(%logger{36}){cyan}: %clr(%msg){blue} %n"
+  file:
+    name: ${LOG_FILE:logs/payment-service.log}
+    max-size: ${LOG_FILE_MAX_SIZE:10MB}
+    max-history: ${LOG_FILE_MAX_HISTORY:7}
+    total-size-cap: ${LOG_FILE_TOTAL_SIZE_CAP:100MB}

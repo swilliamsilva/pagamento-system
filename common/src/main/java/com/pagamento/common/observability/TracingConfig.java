@@ -1,15 +1,6 @@
-/* ========================================================
-# Classe: TracingConfig
-# Módulo: pagamento-common-observability
-# Autor: William Silva
-# Contato: williamsilva.codigo@gmail.com
-# Website: simuleagora.com
-# ======================================================== */
-
 package com.pagamento.common.observability;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.tracing.Span;
 import io.micrometer.tracing.Tracer;
 import io.micrometer.tracing.otel.bridge.*;
 import io.opentelemetry.api.GlobalOpenTelemetry;
@@ -26,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
@@ -76,84 +68,25 @@ public class TracingConfig {
 
     @Bean
     public Tracer otelTracer(OpenTelemetrySdk sdk, MeterRegistry meterRegistry) {
-        // Configuração simplificada para Spring Boot 2.7
         io.opentelemetry.api.trace.Tracer otelTracer = sdk.getTracerProvider().get("payment-service");
+        OtelCurrentTraceContext otelCurrentTraceContext = new OtelCurrentTraceContext();
         
         return new OtelTracer(
             otelTracer,
-            new OtelCurrentTraceContext(),
-            event -> {},
-            new OtelBaggageManager(new OtelCurrentTraceContext(), Collections.emptyList(), Collections.emptyList()),
-            Collections.emptyList(),
-            Collections.emptyList(),
-            meterRegistry
+            otelCurrentTraceContext,
+            event -> {} // Simple no-op event publisher
         );
     }
-
+    
     @Bean
-    public OtelPropagator propagator() {
-        return new OtelPropagator(new ArrayList<>(), new ArrayList<>());
+    public Tracer otelTracer1(OpenTelemetrySdk sdk, MeterRegistry meterRegistry) {
+        io.opentelemetry.api.trace.Tracer otelTracer = sdk.getTracerProvider().get("payment-service");
+        OtelCurrentTraceContext otelCurrentTraceContext = new OtelCurrentTraceContext();
+        
+        return new OtelTracer(
+            otelTracer,
+            otelCurrentTraceContext,
+            event -> {} // Implementação simples do EventPublisher
+        );
     }
 }
-
-/**
- * @Configuration para configuração de tracing distribuído
- * 
- * <p>Configura a integração entre Micrometer Tracing e OpenTelemetry
- * para coleta e exportação de traces em formato OTLP.</p>
- * 
- * <h2>Fluxo Principal</h2>
- * <ol>
- *   <li><b>Entrada:</b> 
- *     <ul>
- *       <li>Nome da aplicação (spring.application.name)</li>
- *       <li>Endpoint do coletor OTLP (otel.exporter.otlp.endpoint)</li>
- *       <li>Ambiente (ENV)</li>
- *     </ul>
- *   </li>
- *   <li><b>Processamento:</b>
- *     <ul>
- *       <li>Criação do recurso OpenTelemetry com nome do serviço</li>
- *       <li>Configuração do sampler baseado no ambiente</li>
- *       <li>Criação do exportador OTLP gRPC</li>
- *       <li>Configuração do provedor de traces</li>
- *       <li>Integração com Micrometer Tracing</li>
- *     </ul>
- *   </li>
- *   <li><b>Saída:</b>
- *     <ul>
- *       <li>SDK OpenTelemetry configurado</li>
- *       <li>Tracer Micrometer pronto para uso</li>
- *       <li>Propagador de contexto configurado</li>
- *     </ul>
- *   </li>
- * </ol>
- * 
- * <h2>Relação com Outras Classes</h2>
- * <table>
- *   <tr><th>Classe</th><th>Relação</th></tr>
- *   <tr><td>OpenTelemetrySdk</td><td>SDK principal do OpenTelemetry</td></tr>
- *   <tr><td>Tracer</td><td>Interface do Micrometer para tracing</td></tr>
- *   <tr><td>Propagator</td><td>Propagação de contexto entre serviços</td></tr>
- *   <tr><td>OtlpGrpcSpanExporter</td><td>Exporta traces para coletor OTLP</td></tr>
- * </table>
- */
-
-    /**
-     * Configura o SDK OpenTelemetry
-     * 
-     * @return SDK configurado com exportador OTLP
-     */
-
-    /**
-     * Cria o Tracer do Micrometer baseado no OpenTelemetry
-     * 
-     * @param sdk SDK OpenTelemetry
-     * @return Tracer configurado
-     */
-
-    /**
-     * Configura o propagador de contexto
-     * 
-     * @return Propagador baseado no W3C Trace Context
-     */

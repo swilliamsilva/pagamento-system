@@ -1,18 +1,12 @@
 package com.pagamento.common.health;
 
-import java.util.Collections;
-
-import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.Health.Builder;
-
 import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.Map;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import java.util.List;
 import org.springframework.boot.actuate.health.HealthEndpointGroups;
-
 
 /**
  * ========================================================
@@ -26,9 +20,6 @@ import org.springframework.boot.actuate.health.HealthEndpointGroups;
  * ========================================================
  */
 public class Health {
-    
-    // Não deve ser instanciada diretamente - usar Health.Builder
-    private Health() {} 
     
     public static Builder up() {
         return new Builder().up();
@@ -45,7 +36,7 @@ public class Health {
     // Implementação interna do Builder
     public static class Builder {
         private String status;
-        private Map<String, Object> details = new LinkedHashMap<>();
+        private Map<String, Object> details = LinkedHashMap.empty();
         
         public Builder up() {
             this.status = "UP";
@@ -63,7 +54,7 @@ public class Health {
         }
         
         public Builder withDetail(String key, Object value) {
-            this.details.put(key, value);
+            this.details = this.details.put(key, value);
             return this;
         }
         
@@ -78,7 +69,7 @@ public class Health {
     
     private Health(String status, Map<String, Object> details) {
         this.status = status;
-        this.details = Collections.unmodifiableMap(details);
+        this.details = details; // Vavr Maps are immutable by default
     }
     
     // Getters

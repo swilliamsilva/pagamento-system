@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -28,10 +29,9 @@ public class KafkaHealthChecker implements DependencyHealthChecker {
         @Value("${kafka.required-topics:}") String[] requiredTopics
     ) {
         this.adminClient = adminClient;
-        this.requiredTopics = requiredTopics.length == 0 ? 
-            Collections.emptySet() : 
-            Set.of(requiredTopics);
-            /* The method of(String[]) is undefined for the type Set*/
+        // Substitui Set.of() por Collections.addAll() para Java 8
+        this.requiredTopics = new HashSet<>();
+        Collections.addAll(this.requiredTopics, requiredTopics);
     }
     
     @Override
@@ -45,7 +45,7 @@ public class KafkaHealthChecker implements DependencyHealthChecker {
             Builder builder = Health.up()
                 .withDetail("response_time_ms", duration.toMillis())
                 .withDetail("topics_found", topics.size());
-            /* Cannot invoke withDetail(String, int) on the primitive type void*/
+            
             if (!requiredTopics.isEmpty()) {
                 Set<String> missingTopics = requiredTopics.stream()
                     .filter(topic -> !topics.contains(topic))
@@ -53,7 +53,6 @@ public class KafkaHealthChecker implements DependencyHealthChecker {
                 
                 if (!missingTopics.isEmpty()) {
                     builder = Health.down()
-                    		/*Cannot invoke withDetail(String, Set<String>) on the primitive type void */
                         .withDetail("error", "Missing required topics")
                         .withDetail("missing_topics", missingTopics);
                 }
@@ -63,13 +62,11 @@ public class KafkaHealthChecker implements DependencyHealthChecker {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return Health.down()
-            		/* Cannot invoke withDetail(String, long) on the primitive type void */
                 .withDetail("error", "Interrupted while checking Kafka health")
                 .withDetail("response_time_ms", Duration.between(start, Instant.now()).toMillis())
                 .build();
         } catch (ExecutionException | TimeoutException e) {
             return Health.down()
-            		/* Cannot invoke withDetail(String, long) on the primitive type void*/
                 .withDetail("error", e.getMessage())
                 .withDetail("response_time_ms", Duration.between(start, Instant.now()).toMillis())
                 .build();

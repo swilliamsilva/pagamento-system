@@ -3,6 +3,7 @@ package com.pagamento.common.observability;
 import io.opencensus.trace.Span;
 import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
+import io.opencensus.trace.propagation.SpanContextParseException;
 import io.opencensus.trace.propagation.TextFormat;
 
 import org.slf4j.MDC;
@@ -49,8 +50,19 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
             }
         };
 
-        Span span = tracer.spanBuilderWithRemoteParent("HTTP " + request.getMethod(), textFormat.extract(request, getter))
-                .startSpan();
+        Span span = null;
+		try {
+			span = tracer.spanBuilderWithRemoteParent("HTTP " + request.getMethod(), textFormat.extract(request, getter))
+			        .startSpan();
+		} catch (SpanContextParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+        /**
+         * Unhandled exception type SpanContextParseException
+         * 
+         * **/
 
         try (io.opencensus.common.Scope scope = tracer.withSpan(span)) {
             MDC.put(CORRELATION_ID, correlationId);

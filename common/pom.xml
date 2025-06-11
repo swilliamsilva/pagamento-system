@@ -211,10 +211,7 @@
        </dependency>
 
         <!-- Micrometer Tracing & Observability -->
-        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-core</artifactId>
-        </dependency>
+        
   
         <dependency>
             <groupId>io.micrometer</groupId>
@@ -222,13 +219,17 @@
             <version>1.10.0</version>
         </dependency>
         
-        <!--Micrometer Core -->
+               
+        <dependency>
+          <groupId>io.micrometer</groupId>
+          <artifactId>micrometer-core</artifactId>
+          <version>1.12.0</version> <!-- Use a versão mais recente -->
+       </dependency>
        <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-core</artifactId>
-            <version>1.11.5</version>
-        </dependency>
-        
+          <groupId>io.micrometer</groupId>
+          <artifactId>micrometer-observation</artifactId>
+          <version>1.12.0</version> <!-- Use a versão mais recente -->
+      </dependency>
        
         <dependency>
             <groupId>io.micrometer</groupId>
@@ -251,6 +252,13 @@
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
+        
+        <dependency>
+           <groupId>io.micrometer</groupId>
+           <artifactId>micrometer-observation</artifactId>
+           <version>1.10.0</version> <!-- ou versão mais recente -->
+        </dependency>
+        
         <dependency>
             <groupId>io.opentelemetry</groupId>
             <artifactId>opentelemetry-exporter-otlp</artifactId>
@@ -282,6 +290,28 @@
             <artifactId>micrometer-tracing</artifactId>
             <version>1.1.3</version>
         </dependency>
+
+<!-- Micrometer Tracing com Bridge para OTel (Spring Boot 2.7) -->
+<dependency>
+    <groupId>io.micrometer</groupId>
+    <artifactId>micrometer-tracing-bridge-otel</artifactId>
+    <version>1.0.0</version> <!-- Versão compatível com SB 2.7 -->
+</dependency>
+
+<!-- OpenTelemetry SDK -->
+<dependency>
+    <groupId>io.opentelemetry</groupId>
+    <artifactId>opentelemetry-sdk</artifactId>
+    <version>1.24.0</version> <!-- Versão compatível -->
+</dependency>
+
+<!-- Exportador OTLP (para enviar traces para coletor) -->
+<dependency>
+    <groupId>io.opentelemetry</groupId>
+    <artifactId>opentelemetry-exporter-otlp</artifactId>
+    <version>1.24.0</version>
+</dependency>
+
 
         <!-- OpenCensus -->
         <dependency>

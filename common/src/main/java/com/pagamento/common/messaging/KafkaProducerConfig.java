@@ -7,14 +7,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.core.MicrometerProducerListener;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-/*
- * Configuration is not an annotation type*/
 public class KafkaProducerConfig {
 
     @Value("${spring.kafka.bootstrap-servers}")
@@ -32,14 +31,20 @@ public class KafkaProducerConfig {
         configProps.put(ProducerConfig.MAX_IN_FLIGHT_REQUESTS_PER_CONNECTION, 1);
         configProps.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "gzip");
         configProps.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
+        configProps.put(ProducerConfig.LINGER_MS_CONFIG, 5);
+        configProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
+        configProps.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
         
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 
     @Bean
     public KafkaTemplate<String, Object> kafkaTemplate() {
-        KafkaTemplate<String, Object> template = new KafkaTemplate<>(producerFactory());
-        ((Object) template).setObservationEnabled(true);  // Habilita observabilidade
-        return template;
+        return new KafkaTemplate<>(producerFactory());
+    }
+    
+    @Bean
+    public MicrometerProducerListener<String, Object> micrometerProducerListener() {
+        return new MicrometerProducerListener<String, Object>(null);
     }
 }
