@@ -1,4 +1,4 @@
-
+#common\src\main\resources\application-security.yml
 # Configurações de segurança TLS
 server:
   ssl:

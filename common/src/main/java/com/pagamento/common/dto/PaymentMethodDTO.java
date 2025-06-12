@@ -1,50 +1,36 @@
 package com.pagamento.common.dto;
 
-import com.pagamento.common.model.PaymentMethod.Type;
-import java.time.LocalDate;
+import com.pagamento.common.enums.PaymentType;
 
 public class PaymentMethodDTO {
     private String id;
-    private String userId;
-    private Type type;
-    private String bankName; // Itaú, Caixa, Santander, PagBank, etc.
-    
-    // Detalhes específicos por tipo de pagamento
-    private CardDetailsDTO cardDetails;
-    private PixDetailsDTO pixDetails;
-    private BoletoDetailsDTO boletoDetails;
-    private PlatformDetailsDTO platformDetails; // Para gateways como PagBank
+    private PaymentType type;
+    private String lastFourDigits;
+    private String pixKey;
+    private String bankName;
 
-    // Getters e Setters (padrão) 
-    // ...
+    public PaymentMethodDTO() {}
 
-    // --- Classes Internas para Detalhes ---
-    public static class CardDetailsDTO {
-        private String cardNumber;
-        private String cardHolder;
-        private String expiryDate;
-        private String cvv;
-        private String brand; // Visa, Mastercard, etc.
-        // Getters/Setters
+    public PaymentMethodDTO(String id, PaymentType type, String lastFourDigits, String pixKey, String bankName) {
+        this.id = id;
+        this.type = type;
+        this.lastFourDigits = lastFourDigits;
+        this.pixKey = pixKey;
+        this.bankName = bankName;
     }
 
-    public static class PixDetailsDTO {
-        private String key; // CPF, CNPJ, email, chave aleatória
-        private String beneficiary;
-        private String bank; // Banco emissor do PIX
-        // Getters/Setters
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public static class BoletoDetailsDTO {
-        private String codigoBarras;
-        private LocalDate dataVencimento;
-        private String beneficiario;
-        // Getters/Setters
-    }
+    public PaymentType getType() { return type; }
+    public void setType(PaymentType type) { this.type = type; }
 
-    public static class PlatformDetailsDTO {
-        private String platformId; // ID na plataforma (ex: PagBank)
-        private String gatewayToken; // Token de segurança
-        // Getters/Setters
-    }
+    public String getLastFourDigits() { return lastFourDigits; }
+    public void setLastFourDigits(String lastFourDigits) { this.lastFourDigits = lastFourDigits; }
+
+    public String getPixKey() { return pixKey; }
+    public void setPixKey(String pixKey) { this.pixKey = pixKey; }
+
+    public String getBankName() { return bankName; }
+    public void setBankName(String bankName) { this.bankName = bankName; }
 }

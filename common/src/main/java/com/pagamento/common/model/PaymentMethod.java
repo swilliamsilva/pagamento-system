@@ -23,7 +23,7 @@ public class PaymentMethod {
     
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private AppUser appUser;
 
     // Getters e Setters
     public UUID getId() { return id; }
@@ -34,6 +34,6 @@ public class PaymentMethod {
     public void setDetails(String details) { this.details = details; }
     public String getBank() { return bank; }
     public void setBank(String bank) { this.bank = bank; }
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    public AppUser getUser() { return appUser; }
+    public void setUser(AppUser appUser) { this.appUser = appUser; }
 }
