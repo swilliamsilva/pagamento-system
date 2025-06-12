@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pagamento.common.dto.CartaoDTO;
 
-import jakarta.validation.Valid;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/cartoes")

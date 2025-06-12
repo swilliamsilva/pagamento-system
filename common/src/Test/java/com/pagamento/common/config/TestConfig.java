@@ -1,5 +1,4 @@
-//common\src\test\java\com\pagamento\common\config\TestConfig.java
-package com.pagamento.common.config.*;
+package com.pagamento.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,9 +6,9 @@ import org.springframework.web.client.RestTemplate;
 
 @Configuration
 public class TestConfig {
-    
+
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
-}
+} 

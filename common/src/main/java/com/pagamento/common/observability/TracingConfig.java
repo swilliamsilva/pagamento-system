@@ -1,9 +1,8 @@
 package com.pagamento.common.observability;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.tracing.Tracer;
-import io.micrometer.tracing.otel.bridge.*;
 import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
@@ -17,11 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.concurrent.TimeUnit;
-
-import static io.opentelemetry.semconv.ResourceAttributes.SERVICE_NAME;
 
 @Configuration
 public class TracingConfig {
@@ -39,7 +34,7 @@ public class TracingConfig {
     public OpenTelemetrySdk openTelemetrySdk() {
         Resource resource = Resource.getDefault()
             .merge(Resource.builder()
-                .put(SERVICE_NAME, applicationName)
+                .put(io.opentelemetry.api.common.AttributeKey.stringKey("service.name"), applicationName)
                 .build());
 
         Sampler sampler = "prod".equalsIgnoreCase(environment)
@@ -67,26 +62,7 @@ public class TracingConfig {
     }
 
     @Bean
-    public Tracer otelTracer(OpenTelemetrySdk sdk, MeterRegistry meterRegistry) {
-        io.opentelemetry.api.trace.Tracer otelTracer = sdk.getTracerProvider().get("payment-service");
-        OtelCurrentTraceContext otelCurrentTraceContext = new OtelCurrentTraceContext();
-        
-        return new OtelTracer(
-            otelTracer,
-            otelCurrentTraceContext,
-            event -> {} // Simple no-op event publisher
-        );
+    public Tracer otelTracer(OpenTelemetrySdk sdk) {
+        return sdk.getTracerProvider().get("payment-service");
     }
-    
-    @Bean
-    public Tracer otelTracer1(OpenTelemetrySdk sdk, MeterRegistry meterRegistry) {
-        io.opentelemetry.api.trace.Tracer otelTracer = sdk.getTracerProvider().get("payment-service");
-        OtelCurrentTraceContext otelCurrentTraceContext = new OtelCurrentTraceContext();
-        
-        return new OtelTracer(
-            otelTracer,
-            otelCurrentTraceContext,
-            event -> {} // Implementação simples do EventPublisher
-        );
-    }
-}
+} 

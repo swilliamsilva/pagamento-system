@@ -1,11 +1,10 @@
 package com.pagamento.common.observability;
 
-import io.opencensus.trace.Span;
-import io.opencensus.trace.Tracer;
-import io.opencensus.trace.Tracing;
-import io.opencensus.trace.propagation.SpanContextParseException;
-import io.opencensus.trace.propagation.TextFormat;
-
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -21,15 +20,7 @@ import java.util.UUID;
 public class CorrelationIdFilter extends OncePerRequestFilter {
 
     private static final String CORRELATION_ID = "X-Correlation-ID";
-    /*
-     * Type mismatch: cannot convert from com.pagamento.common.observability.TextFormat to io.opencensus.trace.propagation.TextFormat
-     * */
-    private static final TextFormat textFormat = TraceContextFormat.getInstance();
-    
-    /*
-     * Type mismatch: cannot convert from com.pagamento.common.observability.TextFormat to io.opencensus.trace.propagation.TextFormat
-     * */
-    private static final Tracer tracer = Tracing.getTracer();
+    private final Tracer tracer = GlobalOpenTelemetry.getTracer("payment-service");
 
     @Override
     protected void doFilterInternal(
@@ -43,28 +34,8 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
             correlationId = UUID.randomUUID().toString();
         }
 
-        TextFormat.Getter<HttpServletRequest> getter = new TextFormat.Getter<HttpServletRequest>() {
-            @Override
-            public String get(HttpServletRequest carrier, String key) {
-                return carrier.getHeader(key);
-            }
-        };
-
-        Span span = null;
-		try {
-			span = tracer.spanBuilderWithRemoteParent("HTTP " + request.getMethod(), textFormat.extract(request, getter))
-			        .startSpan();
-		} catch (SpanContextParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        
-        /**
-         * Unhandled exception type SpanContextParseException
-         * 
-         * **/
-
-        try (io.opencensus.common.Scope scope = tracer.withSpan(span)) {
+        Span span = tracer.spanBuilder("HTTP " + request.getMethod()).startSpan();
+        try (Scope scope = span.makeCurrent()) {
             MDC.put(CORRELATION_ID, correlationId);
             response.addHeader(CORRELATION_ID, correlationId);
             filterChain.doFilter(request, response);
@@ -73,4 +44,4 @@ public class CorrelationIdFilter extends OncePerRequestFilter {
             MDC.remove(CORRELATION_ID);
         }
     }
-}
+} 
