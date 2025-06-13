@@ -1,12 +1,3 @@
-/* ========================================================
-# Classe: DefaultHealthEndpointGroup
-# Módulo: pagamento-common-health
-# Autor: William Silva
-# Contato: williamsilva.codigo@gmail.com
-# Website: simuleagora.com
-# Tecnologias: Java 8, Spring Boot 2.7, Maven - Junho 2025
-# ======================================================== */
-
 package com.pagamento.common.health;
 
 import org.springframework.boot.actuate.health.HealthEndpointGroup;
@@ -15,35 +6,20 @@ import org.springframework.boot.actuate.endpoint.SecurityContext;
 import org.springframework.boot.actuate.health.StatusAggregator;
 import org.springframework.boot.actuate.health.HttpCodeStatusMapper;
 import org.springframework.boot.actuate.health.AdditionalHealthEndpointPath;
-import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
-/**
- * Implementação customizada de grupos de endpoints de saúde
- */
-@Component
-public class DefaultHealthEndpointGroups implements HealthEndpointGroups, Map<String, HealthEndpointGroup> {
-
+public class DefaultHealthEndpointGroups implements HealthEndpointGroups {
+    
     private final Map<String, HealthEndpointGroup> groups = new ConcurrentHashMap<>();
     private final HealthEndpointGroup defaultGroup;
-
-    public DefaultHealthEndpointGroups() {
-        this.defaultGroup = new SimpleHealthEndpointGroup(
-            true, 
-            ShowDetails.ALWAYS, 
-            Collections.emptySet(),
-            StatusAggregator.getDefault(),
-            HttpCodeStatusMapper.DEFAULT,
-            null
-        );
-    }
-
+    
     public DefaultHealthEndpointGroups(Map<String, HealthEndpointGroup> groups, 
                                      HealthEndpointGroup defaultGroup) {
-        this.groups.putAll(groups);
-        this.defaultGroup = defaultGroup;
+        this.groups.putAll(Objects.requireNonNull(groups));
+        this.defaultGroup = Objects.requireNonNull(defaultGroup);
     }
 
     @Override
@@ -61,84 +37,25 @@ public class DefaultHealthEndpointGroups implements HealthEndpointGroups, Map<St
         return Collections.unmodifiableSet(groups.keySet());
     }
 
-    // Implementações do Map interface
-    @Override
-    public int size() {
-        return groups.size();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return groups.isEmpty();
-    }
-
-    @Override
-    public boolean containsKey(Object key) {
-        return groups.containsKey(key);
-    }
-
-    @Override
-    public boolean containsValue(Object value) {
-        return groups.containsValue(value);
-    }
-
-    @Override
-    public HealthEndpointGroup get(Object key) {
-        return groups.get(key);
-    }
-
-    @Override
-    public HealthEndpointGroup put(String key, HealthEndpointGroup value) {
-        return groups.put(key, value);
-    }
-
-    @Override
-    public HealthEndpointGroup remove(Object key) {
-        return groups.remove(key);
-    }
-
-    @Override
-    public void putAll(Map<? extends String, ? extends HealthEndpointGroup> m) {
-        groups.putAll(m);
-    }
-
-    @Override
-    public void clear() {
-        groups.clear();
-    }
-
-    @Override
-    public Set<String> keySet() {
-        return Collections.unmodifiableSet(groups.keySet());
-    }
-
-    @Override
-    public Collection<HealthEndpointGroup> values() {
-        return Collections.unmodifiableCollection(groups.values());
-    }
-
-    @Override
-    public Set<Entry<String, HealthEndpointGroup>> entrySet() {
-        return Collections.unmodifiableSet(groups.entrySet());
-    }
-
     private static class SimpleHealthEndpointGroup implements HealthEndpointGroup {
         private final boolean includes;
-        private final ShowDetails showDetails;
+        private final String showDetails;
         private final Set<String> roles;
         private final StatusAggregator statusAggregator;
         private final HttpCodeStatusMapper httpCodeStatusMapper;
         private final AdditionalHealthEndpointPath additionalPath;
 
         public SimpleHealthEndpointGroup(boolean includes, 
-                                       ShowDetails showDetails, 
-                                       Set<String> roles,
-                                       StatusAggregator statusAggregator,
-                                       HttpCodeStatusMapper httpCodeStatusMapper,
-                                       AdditionalHealthEndpointPath additionalPath) {
+                                      String showDetails,
+                                      Set<String> roles,
+                                      StatusAggregator statusAggregator,
+                                      HttpCodeStatusMapper httpCodeStatusMapper,
+                                      AdditionalHealthEndpointPath additionalPath) {
             this.includes = includes;
             this.showDetails = showDetails;
-            this.roles = Collections.unmodifiableSet(new HashSet<>(roles));
+            this.roles = roles != null ? 
+                Collections.unmodifiableSet(new HashSet<>(roles)) : 
+                Collections.emptySet();
             this.statusAggregator = statusAggregator;
             this.httpCodeStatusMapper = httpCodeStatusMapper;
             this.additionalPath = additionalPath;
@@ -149,7 +66,7 @@ public class DefaultHealthEndpointGroups implements HealthEndpointGroups, Map<St
             return includes;
         }
 
-        public ShowDetails getShowDetails() {
+        public String getShowDetails() {
             return showDetails;
         }
 
@@ -159,12 +76,22 @@ public class DefaultHealthEndpointGroups implements HealthEndpointGroups, Map<St
 
         @Override
         public boolean showComponents(SecurityContext securityContext) {
-            return false;
+            if ("ALWAYS".equals(showDetails)) {
+                return true;
+            }
+            if (!"WHEN_AUTHORIZED".equals(showDetails)) {
+                return false;
+            }
+            if (securityContext == null || securityContext.getPrincipal() == null) {
+                return false;
+            }
+            return roles.isEmpty() || roles.stream()
+                .anyMatch(r -> securityContext.isUserInRole(r));
         }
 
         @Override
         public boolean showDetails(SecurityContext securityContext) {
-            return showDetails != ShowDetails.NEVER;
+            return showComponents(securityContext);
         }
 
         @Override

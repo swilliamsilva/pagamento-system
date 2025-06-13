@@ -7,6 +7,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
+import com.pagamento.common.mapper.AppUserMapper.UUIDMapper;
+
 
 @Mapper(componentModel = "spring",
         uses = {PaymentMethodMapper.class, UUIDMapper.class},
@@ -14,7 +16,11 @@ import org.mapstruct.ReportingPolicy;
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface AppUserMapper {
 
-    @Mapping(target = "id", source = "id")
+    public class UUIDMapper {
+
+	}
+
+	@Mapping(target = "id", source = "id")
     @Mapping(target = "paymentMethods", source = "paymentMethods")
     AppUserDTO toDTO(AppUser appUser);
 

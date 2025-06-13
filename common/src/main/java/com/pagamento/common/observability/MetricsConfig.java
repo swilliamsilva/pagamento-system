@@ -16,12 +16,10 @@ public class MetricsConfig {
     @Value("${spring.application.name:pagamento-service}")
     private String applicationName;
     
-    // Lista de URIs a serem ignoradas
     private static final List<String> IGNORED_URIS = Arrays.asList(
-        "/actuator", "/swagger", "/v3/api-docs", "/health"
+        new String[]{"/actuator", "/swagger", "/v3/api-docs", "/health"}
     );
 
- // Atualize a classe:
     @Bean
     public MeterRegistryCustomizer<MeterRegistry> metricsCommonTags(
         @Value("${management.metrics.tags.application:${spring.application.name:application}}") String appName) {
@@ -38,12 +36,9 @@ public class MetricsConfig {
         };
     }
     
-    
     private boolean shouldIgnoreUri(Meter.Id id) {
         String uri = id.getTag("uri");
-        if (uri == null) return false;
-        
-        return IGNORED_URIS.stream().anyMatch(uri::contains);
+        return uri != null && IGNORED_URIS.stream().anyMatch(uri::contains);
     }
 
     private MeterFilter enableHistograms() {

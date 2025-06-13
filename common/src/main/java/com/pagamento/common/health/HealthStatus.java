@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
  * @website simuleagora.com
  * ========================================================
  */
+
 @Tag(name = "Health Check Utilities", description = "Fornece métodos para construção de respostas de verificação de saúde")
 @Schema(description = "Classe utilitária para construção de status de saúde")
 public class HealthStatus {

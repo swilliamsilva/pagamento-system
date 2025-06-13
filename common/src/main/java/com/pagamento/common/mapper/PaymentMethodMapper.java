@@ -2,6 +2,7 @@ package com.pagamento.common.mapper;
 
 import com.pagamento.common.dto.PaymentMethodDTO;
 import com.pagamento.common.enums.PaymentType;
+import com.pagamento.common.mapper.AppUserMapper.UUIDMapper;
 import com.pagamento.common.model.PaymentMethod;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
