@@ -27,7 +27,7 @@
 
     <!-- Alinhado com Java 8 -->
     <spring-kafka.version>2.7.12</spring-kafka.version>
-    <kafka-clients.version>2.7.2</kafka-clients.version>
+    <kafka-clients.version>3.9.1</kafka-clients.version>
 
     <server.base.url>http://localhost:8080</server.base.url>
 </properties>
