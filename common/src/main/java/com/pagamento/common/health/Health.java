@@ -1,12 +1,7 @@
 package com.pagamento.common.health;
 
-import org.springframework.boot.actuate.health.Health.Builder;
 import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.Map;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import java.util.List;
-import org.springframework.boot.actuate.health.HealthEndpointGroups;
 
 /**
  * ========================================================

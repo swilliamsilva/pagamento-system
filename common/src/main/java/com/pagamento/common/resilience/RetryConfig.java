@@ -7,11 +7,6 @@ import org.springframework.retry.backoff.FixedBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import java.util.List;
-import org.springframework.boot.actuate.health.HealthEndpointGroups;
-
 @Configuration
 @EnableRetry
 public class RetryConfig {

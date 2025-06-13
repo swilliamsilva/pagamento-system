@@ -1,10 +1,10 @@
 package com.pagamento.common.messaging;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
+import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.kafka.support.TopicPartitionOffset;
@@ -15,12 +15,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-@Schema(description = "Template para envio de mensagens Kafka com suporte a diferentes estratégias")
+/**
+ * Wrapper simplificado para KafkaTemplate original.
+ */
 public class KafkaTemplateWrapper<K, V> {
 
-    private final org.springframework.kafka.core.KafkaTemplate<K, V> delegate;
+    private final KafkaOperations<K, V> delegate;
 
-    public KafkaTemplateWrapper(org.springframework.kafka.core.KafkaTemplate<K, V> delegate) {
+    public KafkaTemplateWrapper(KafkaOperations<K, V> delegate) {
         this.delegate = delegate;
     }
 
@@ -46,39 +48,41 @@ public class KafkaTemplateWrapper<K, V> {
         delegate.sendOffsetsToTransaction(offsets, consumerGroupId);
     }
 
-    /**
-     * Envia dentro de contexto transacional (Kafka TX).
-     */
-    @Transactional
-    public void sendTransactional(String topic, V message) {
-        delegate.executeInTransaction(template -> {
-            template.send(topic, message);
-            return null;
-        });
+    public void executeInTransaction(KafkaOperations.OperationsCallback<K, V> callback) {
+        delegate.executeInTransaction(callback);
+    }
+
+    public boolean isTransactional() {
+        return delegate.isTransactional();
     }
 
     public List<PartitionInfo> partitionsFor(String topic) {
         return delegate.partitionsFor(topic);
     }
 
-    public <T> T execute(ProducerFactory<K, V> pf, org.springframework.kafka.core.KafkaOperations.ProducerCallback<K, V, T> cb) {
-        return delegate.execute(pf, cb);
-    }
-
-    public Map<org.apache.kafka.common.MetricName, ? extends org.apache.kafka.common.Metric> metrics() {
+    public Map<String, ?> metrics() {
         return delegate.metrics();
     }
 
-    public CompletableFuture<SendResult<K, V>> sendWithCallback(String topic, V message) {
-        ListenableFuture<SendResult<K, V>> future = send(topic, message);
-        CompletableFuture<SendResult<K, V>> completable = new CompletableFuture<>();
-        future.addCallback(completable::complete, completable::completeExceptionally);
-        return completable;
+    public <T> T execute(KafkaOperations.ProducerCallback<K, V, T> callback) {
+        return delegate.execute(callback);
+    }
+
+    public ListenableFuture<SendResult<K, V>> sendWithCallback(String topic, V message) {
+        return delegate.send(topic, message).completable();
     }
 
     public void sendWithTimestamp(String topic, K key, V message, long timestamp) {
         ProducerRecord<K, V> record = new ProducerRecord<>(topic, null, timestamp, key, message);
-        send(record);
+        delegate.send(record);
+    }
+
+    @Transactional
+    public void sendTransactional(String topic, V message) {
+        delegate.executeInTransaction(t -> {
+            t.send(topic, message);
+            return null;
+        });
     }
 
     public static class KafkaSendException extends RuntimeException {

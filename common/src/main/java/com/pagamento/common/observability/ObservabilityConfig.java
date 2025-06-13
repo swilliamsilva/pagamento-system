@@ -1,16 +1,14 @@
 package com.pagamento.common.observability;
 
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationHandler;
+import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.aop.ObservedAspect;
-import io.micrometer.observation.ObservationPredicate;
 
 // @Configuration
 public class ObservabilityConfig implements WebMvcConfigurer {
