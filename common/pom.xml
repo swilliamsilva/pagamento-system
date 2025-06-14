@@ -12,6 +12,9 @@
         <relativePath/>
     </parent>
 
+
+
+
     <groupId>com.pagamento</groupId>
     <artifactId>common</artifactId>
     <version>1.0.0</version>
@@ -26,9 +29,7 @@
     <resilience4j.version>1.7.1</resilience4j.version>
 
     <!-- Alinhado com Java 8 -->
-    <spring-kafka.version>2.7.12</spring-kafka.version>
-    <kafka-clients.version>2.7.2</kafka-clients.version>
-
+    
     <server.base.url>http://localhost:8080</server.base.url>
 </properties>
 
@@ -67,7 +68,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency>
-
+                
         <!-- Databases -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -126,15 +127,16 @@
         </dependency>
 
         <!-- Kafka -->
+        
         <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka</artifactId>
-            <version>${spring-kafka.version}</version>
+           <groupId>org.springframework.kafka</groupId>
+           <artifactId>spring-kafka</artifactId>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
-            <version>${kafka-clients.version}</version>
+            
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
