@@ -16,6 +16,8 @@ import org.springframework.boot.actuate.health.Status;
 import org.springframework.boot.actuate.health.NamedContributor;
 import org.springframework.stereotype.Component;
 
+import com.pagamento.common.health.*;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,8 +38,14 @@ public class HealthEndpoint {
 
     private final HealthContributorRegistry contributorRegistry;
 
-    public HealthEndpoint(HealthContributorRegistry contributorRegistry) {
-        this.contributorRegistry = contributorRegistry;
+    public HealthEndpoint(Map<String, HealthIndicator> indicatorsMap) {
+        this.contributorRegistry = (HealthContributorRegistry) indicatorsMap;
+        
+        /**
+         * Type mismatch: cannot convert from Map<String,HealthIndicator> to HealthContributorRegistry
+         * 
+         * 
+         * **/
     }
 
     @ReadOperation

@@ -1,7 +1,7 @@
-#common\src\main\resources\application.yml
 spring:
   application:
     name: payment-service
+
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
@@ -21,6 +21,7 @@ spring:
         batch.size: 16384
         compression.type: gzip
         spring.json.add.type.headers: false
+
   data:
     cassandra:
       contact-points: ${CASSANDRA_CONTACT_POINTS:localhost}
@@ -31,23 +32,35 @@ spring:
       connection:
         connect-timeout: ${CASSANDRA_CONNECT_TIMEOUT:5s}
         init-query-timeout: ${CASSANDRA_INIT_TIMEOUT:10s}
-  springdoc:
-    api-docs:
-      path: /v3/api-docs
-      enabled: true
-  swagger-ui:
-    path: /swagger-ui.html
+
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
     enabled: true
+
+swagger-ui:
+  path: /swagger-ui.html
+  enabled: true
+
+springdoc-defaults:
   operationsSorter: alpha
   tagsSorter: alpha
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
+
 external:
   service:
     health:
       url: ${EXTERNAL_HEALTH_URL:https://api.externa.com/health}
       timeout: ${EXTERNAL_HEALTH_TIMEOUT:2000}
     name: ${EXTERNAL_SERVICE_NAME:PaymentGateway}
+
 management:
   endpoints:
     web:
@@ -97,6 +110,7 @@ management:
   tracing:
     sampling:
       probability: 0.1
+
 logging:
   level:
     root: ${LOGGING_LEVEL:INFO}
@@ -107,8 +121,7 @@ logging:
     com.datastax.oss: ${LOGGING_LEVEL_CASSANDRA:WARN}
   pattern:
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
-    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr([%thread]){orange}
-      %clr(%-5level){green} %clr(%logger{36}){cyan}: %clr(%msg){blue} %n"
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr([%thread]){orange} %clr(%-5level){green} %clr(%logger{36}){cyan}: %clr(%msg){blue} %n"
   file:
     name: ${LOG_FILE:logs/payment-service.log}
     max-size: ${LOG_FILE_MAX_SIZE:10MB}

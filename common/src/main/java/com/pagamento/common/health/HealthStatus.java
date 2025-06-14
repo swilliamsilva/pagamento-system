@@ -1,7 +1,11 @@
 package com.pagamento.common.health;
 
+import java.util.Map;
+
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.Health.Builder;
+import org.springframework.boot.actuate.health.HealthIndicator;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -24,7 +28,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 @Schema(description = "Classe utilitária para construção de status de saúde")
 public class HealthStatus {
 
-    /**
+    public HealthStatus(String string, String string2, Object object) {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
      * Cria status UP
      * @return Health.Builder configurado com status UP
      */
@@ -82,6 +90,16 @@ public class HealthStatus {
     public static Builder status(String status) {
         return Health.status(status);
     }
+
+	public Object getStatus() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Map<String, HealthIndicator> getContributors() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
 /**
  * ========================================================

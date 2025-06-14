@@ -1,109 +1,61 @@
+/* ========================================================
+# Classe: KafkaLoggerTest
+# Módulo: pagamento-common-messaging
+# Autor: William Silva
+# Contato: williamsilva.codigo@gmail.com
+# Website: simuleagora.com
+# ======================================================== */
+
 package com.pagamento.common.messaging;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.pagamento.common.dto.LogMessageDTO;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Date;
 
-/**
- * Logger estruturado para mensagens Kafka com suporte a MDC (Mapped Diagnostic Context).
- */
-@Schema(description = "Logger especializado para mensageria Kafka")
-public final class KafkaLogger {
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
-    private static final String TOPIC = "topic";
-    private static final String PARTITION = "partition";
-    private static final String OFFSET = "offset";
-    private static final String KEY = "messageKey";
-    private static final String EXCEPTION = "exception";
+public class KafkaLoggerTest {
 
-    private final Logger delegate;
+    private KafkaTemplateWrapper wrapperMock;
+    private KafkaLogger kafkaLogger;
 
-    // Construtor principal para produção
-    public KafkaLogger(Class<?> clazz) {
-        this(LoggerFactory.getLogger(clazz));
+    @Before
+    public void setup() {
+        wrapperMock = mock(KafkaTemplateWrapper.class);
+        kafkaLogger = new KafkaLogger(wrapperMock, "topic-logs");
     }
 
-    // Construtor alternativo para testes (injeção do mock)
-    public KafkaLogger(Logger logger) {
-        this.delegate = logger;
+    @Test
+    public void deveEnviarMensagemDeLogComTodosOsCampos() {
+        String nivel = "INFO";
+        String mensagem = "Teste de log";
+        String classe = "MinhaClasse";
+        String metodo = "meuMetodo";
+
+        kafkaLogger.log(nivel, mensagem, classe, metodo);
+
+        ArgumentCaptor<LogMessageDTO> captor = ArgumentCaptor.forClass(LogMessageDTO.class);
+        verify(wrapperMock).send(eq("topic-logs"), captor.capture());
+
+        LogMessageDTO enviado = captor.getValue();
+        assertEquals(nivel, enviado.getLevel());
+        assertEquals(mensagem, enviado.getMensagem());
+        assertEquals(classe, enviado.getClasse());
+        assertEquals(metodo, enviado.getMetodo());
+        assertNotNull(enviado.getTimestamp());
     }
 
-    public void info(String message, ConsumerRecord<?, ?> record) {
-        withContext(fromRecord(record), () -> {
-            delegate.info("[KAFKA] {} - topic={}, partition={}, offset={}, key={}",
-                    message, record.topic(), record.partition(), record.offset(), record.key());
-        });
-    }
-
-    public void info(String message, Object key, Object value) {
-        Map<String, String> context = new HashMap<>();
-        context.put(KEY, String.valueOf(key));
-        withContext(context, () -> {
-            delegate.info("[APP] {} - key={}, value={}", message, key, value);
-        });
-    }
-
-    public void error(String message, String topic, Integer partition, Long offset, Object key, Exception exception) {
-        Map<String, String> context = new HashMap<>();
-        context.put(TOPIC, topic);
-        context.put(PARTITION, String.valueOf(partition));
-        context.put(OFFSET, String.valueOf(offset));
-        context.put(KEY, String.valueOf(key));
-        context.put(EXCEPTION, exception.getClass().getName());
-
-        withContext(context, () -> {
-            delegate.error("[KAFKA-ERROR] {} - topic={}, partition={}, offset={}, key={}",
-                    message, topic, partition, offset, key, exception);
-        });
-    }
-
-    @Deprecated
-    public void error(String message, Exception... exceptions) {
-        if (exceptions.length > 0) {
-            Exception primary = exceptions[0];
-            delegate.error("[LEGACY] {} - rootCause={}", message, primary.getMessage(), primary);
-        }
-    }
-
-    @Deprecated
-    public void error1(String message, Exception... exceptions) {
-        error(message, exceptions);
-    }
-
-    private void withContext(Map<String, String> context, Runnable action) {
+    @Test
+    public void naoDeveLancarExcecaoQuandoWrapperForNulo() {
+        KafkaLogger semWrapper = new KafkaLogger(null, "topico-vazio");
         try {
-            context.forEach(MDC::put);
-            action.run();
-        } finally {
-            context.keySet().forEach(MDC::remove);
+            semWrapper.log("ERROR", "Falha crítica", "ClasseX", "metodoY");
+        } catch (Exception e) {
+            fail("Não deveria lançar exceção com wrapper nulo");
         }
-    }
-
-    private Map<String, String> fromRecord(ConsumerRecord<?, ?> record) {
-        Map<String, String> context = new HashMap<>();
-        context.put(TOPIC, record.topic());
-        context.put(PARTITION, String.valueOf(record.partition()));
-        context.put(OFFSET, String.valueOf(record.offset()));
-        context.put(KEY, String.valueOf(record.key()));
-        return context;
-    }
-
-    public void debug(String message, ConsumerRecord<?, ?> record) {
-        if (delegate.isDebugEnabled()) {
-            withContext(fromRecord(record), () -> {
-                delegate.debug("[KAFKA-DEBUG] {}", message);
-            });
-        }
-    }
-
-    public void warn(String message, ConsumerRecord<?, ?> record, Exception e) {
-        withContext(fromRecord(record), () -> {
-            delegate.warn("[KAFKA-WARN] {} - {}", message, e.getMessage(), e);
-        });
     }
 }

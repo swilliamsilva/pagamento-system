@@ -2,6 +2,7 @@ package com.pagamento.common.messaging;
 
 import org.apache.kafka.clients.producer.Producer;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.AbstractPlatformTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -10,7 +11,7 @@ import java.util.Objects;
 
 /**
  * Gerenciador de transações para operações Kafka.
- * 
+ *
  * @deprecated Use {@link org.springframework.kafka.transaction.KafkaTransactionManager} do Spring Kafka
  */
 @Deprecated
@@ -21,6 +22,7 @@ public class KafkaTransactionManager<K, V> extends AbstractPlatformTransactionMa
     public KafkaTransactionManager(ProducerFactory<K, V> producerFactory) {
         Objects.requireNonNull(producerFactory, "ProducerFactory não pode ser nulo");
         this.producerFactory = producerFactory;
+        // não suportamos transações aninhadas
         setNestedTransactionAllowed(false);
         setValidateExistingTransaction(false);
     }
@@ -28,21 +30,20 @@ public class KafkaTransactionManager<K, V> extends AbstractPlatformTransactionMa
     @Override
     protected Object doGetTransaction() {
         KafkaTransactionObject txObject = new KafkaTransactionObject();
+        @SuppressWarnings("unchecked")
         Producer<K, V> producer = (Producer<K, V>) TransactionSynchronizationManager.getResource(producerFactory);
         txObject.setProducer(producer);
         return txObject;
     }
 
     @Override
-    protected void doBegin(Object transaction, Object definition) {
+    protected void doBegin(Object transaction, TransactionDefinition definition) {
         KafkaTransactionObject txObject = (KafkaTransactionObject) transaction;
-        
         if (txObject.getProducer() == null) {
             Producer<K, V> producer = this.producerFactory.createProducer();
             txObject.setProducer(producer);
             TransactionSynchronizationManager.bindResource(producerFactory, producer);
         }
-        
         txObject.getProducer().beginTransaction();
     }
 
@@ -70,11 +71,9 @@ public class KafkaTransactionManager<K, V> extends AbstractPlatformTransactionMa
 
     private static class KafkaTransactionObject {
         private Producer<?, ?> producer;
-
         public Producer<?, ?> getProducer() {
             return producer;
         }
-
         public void setProducer(Producer<?, ?> producer) {
             this.producer = producer;
         }

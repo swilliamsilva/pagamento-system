@@ -6,18 +6,24 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import javax.sql.DataSource;
+
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(properties = {
-    "spring.main.allow-circular-references=true",
-    "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration"
+    "spring.main.allow-circular-references=true"
+    // Não desabilita mais o DataSource aqui, pois você quer testá-lo
+	// @@@@@@Desabilitado apenas para avançar com os testes antes de veriicar o BD.	
 })
 public class ApplicationContextTest {
 
     @Autowired(required = false)
     private ApplicationContext applicationContext;
+
+    @Autowired(required = false)
+    private DataSource dataSource;
 
     @Test
     public void contextLoads() {
@@ -26,9 +32,7 @@ public class ApplicationContextTest {
 
     @Test
     public void shouldHaveDataSourceConfigured() {
-        if (applicationContext != null) {
-            DataSource dataSource = applicationContext.getBeanProvider(DataSource.class).getIfAvailable();
-            assertNotNull(dataSource, "DataSource deve estar configurado no contexto");
-        }
+        // Agora valida direto a injeção
+        assertNotNull(dataSource, "DataSource deve estar configurado no contexto");
     }
 }

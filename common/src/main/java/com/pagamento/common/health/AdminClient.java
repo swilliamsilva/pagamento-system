@@ -5,7 +5,7 @@
 # Contato: williamsilva.codigo@gmail.com
 # Tecnologias: Java 8, spring 2.7 e Maven  - Junho de 2025
 # ========================================================
-######D############################################################################### */
+*/
 
 package com.pagamento.common.health;
 
